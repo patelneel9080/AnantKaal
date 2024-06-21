@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "527991928161",
+    "project_id": "anantkaal-7a6e3",
+    "storage_bucket": "anantkaal-7a6e3.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:527991928161:android:837479d699481f3c650120",
+        "android_client_info": {
+          "package_name": "com.example.anantkaal"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDrvYfkthSeE0GChsEULIgK_PL5no8yBzI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
