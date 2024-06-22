@@ -1,9 +1,38 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import 'package:http/http.dart' as http;
 import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:get/get.dart';
 import '../utils/constants.dart';
+import 'chat_screen.dart';
+
+String? _validateName(String? value) {
+  if (value == null || value.isEmpty) {
+    return 'Please enter your full name';
+  }
+  return null;
+}
+
+String? _validateEmail(String? value) {
+  if (value == null || value.isEmpty) {
+    return 'Please enter your email address';
+  } else if (!value.contains('@')) {
+    return 'Please enter a valid email address';
+  }
+  return null;
+}
+
+String? _validatePassword(String? value) {
+  if (value == null || value.isEmpty) {
+    return 'Please enter your password';
+  } else if (value.length < 8) {
+    return 'Password must be at least 8 characters long';
+  }
+  return null;
+}
 
 class SignUpScreen extends StatelessWidget {
   @override
@@ -40,6 +69,7 @@ class SignUpScreen extends StatelessWidget {
                     buildCustomTextField(
                       focusNode: controller.fullNameFocusNode,
                       onChanged: controller.setFullName,
+                      validator: _validateName,
                     ),
                     SizedBox(height: 16),
                     buildInputLabel('Phone'),
@@ -52,11 +82,16 @@ class SignUpScreen extends StatelessWidget {
                       focusNode: controller.emailFocusNode,
                       keyboardType: TextInputType.emailAddress,
                       onChanged: controller.setEmail,
+                      validator: _validateEmail,
                     ),
                     SizedBox(height: 16),
                     buildInputLabel('Password'),
                     SizedBox(height: 4),
-                    buildPasswordTextField(controller),
+                    buildCustomTextField(
+                      focusNode: controller.passwordFocusNode,
+                      onChanged: controller.setPassword,
+                      validator: _validatePassword,
+                    ),
                     SizedBox(height: 16),
                     buildInputLabel('Address'),
                     SizedBox(height: 4),
@@ -82,23 +117,31 @@ class SignUpScreen extends StatelessWidget {
                     ),
                     SizedBox(height: 16),
                     buildInputLabel('My date of birth:'),
-                    SizedBox(height: 4,),
-                    buildDateOfBirthField(context, controller, focusNode: controller.dobFocusNode),
+                    SizedBox(
+                      height: 4,
+                    ),
+                    buildDateOfBirthField(context, controller,
+                        focusNode: controller.dobFocusNode),
                     SizedBox(height: 16),
                     buildInputLabel('Gender'),
                     buildGenderRadioButtons(controller),
                     SizedBox(height: 16),
-
-                    // SizedBox(height: 4),
-                    // buildCustomTextField(focusNode: controller.dobFocusNode),
                     SizedBox(height: 24),
                     ElevatedButton(
-                      onPressed: () {
-                        if (controller.formKey.currentState!.validate()) {
-                          controller.signUp(); // Example: Trigger signup logic
+                      onPressed: () async {
+                        await controller.signUp("uwbev", "a@gmail.com", "734853845348", "vwyvfc", "bybriyvbe", "bieybvry", "jhvceyvev", "neurbveribvierb");
+                        // Fetch user data
+                        var userData = await controller.fetchUserData('Vraj886@gmail.com');
+
+                        if (userData != null) {
+                          // Navigate to ChatScreen with fetched user data
+                          Get.to(() => ChatScreen(userData: userData));
+                        } else {
+                          // Handle case where user data fetch failed
+                          // Display an error message or retry option
                         }
                       },
-                      child: Text('Sign Up'),
+                      child: Text('Fetch User Data and Navigate to Chat'),
                     ),
                   ],
                 ),
@@ -110,7 +153,7 @@ class SignUpScreen extends StatelessWidget {
     );
   }
 
-  Widget  buildInputLabel(String label) {
+  Widget buildInputLabel(String label) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -126,6 +169,7 @@ class SignUpScreen extends StatelessWidget {
     required FocusNode focusNode,
     TextInputType? keyboardType,
     Function(String)? onChanged,
+    String? Function(String?)? validator,
   }) {
     return Container(
       decoration: BoxDecoration(
@@ -136,11 +180,12 @@ class SignUpScreen extends StatelessWidget {
         ),
         borderRadius: BorderRadius.circular(8),
       ),
-      child: TextField(
+      child: TextFormField(
         style: TextStyle(color: Colors.black, fontWeight: FontWeight.w400),
         focusNode: focusNode,
         keyboardType: keyboardType,
         onChanged: onChanged,
+        validator: validator,
         decoration: InputDecoration(
           contentPadding: EdgeInsets.symmetric(vertical: 16, horizontal: 16),
           border: InputBorder.none,
@@ -149,7 +194,9 @@ class SignUpScreen extends StatelessWidget {
     );
   }
 
-  Widget buildDateOfBirthField(BuildContext context, SignUpController controller, {required FocusNode focusNode}) {
+  Widget buildDateOfBirthField(
+      BuildContext context, SignUpController controller,
+      {required FocusNode focusNode}) {
     String formattedDate = controller.selectedDate == null
         ? 'Select Date of Birth'
         : DateFormat('dd/MM/yyyy').format(controller.selectedDate!);
@@ -161,7 +208,9 @@ class SignUpScreen extends StatelessWidget {
       child: AbsorbPointer(
         child: Container(
           decoration: BoxDecoration(
-            color: focusNode.hasFocus ? kPrimaryColor.withOpacity(0.1) : Colors.white,
+            color: focusNode.hasFocus
+                ? kPrimaryColor.withOpacity(0.1)
+                : Colors.white,
             border: Border.all(
               color: focusNode.hasFocus ? kPrimaryColor : Colors.grey,
             ),
@@ -188,7 +237,8 @@ class SignUpScreen extends StatelessWidget {
     );
   }
 
-  Future<void> _selectDate(BuildContext context, SignUpController controller) async {
+  Future<void> _selectDate(
+      BuildContext context, SignUpController controller) async {
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: controller.selectedDate ?? DateTime.now(),
@@ -519,8 +569,29 @@ class SignUpController extends GetxController {
     super.onClose();
   }
 
-  void updateState() {
-    update();
+  String? _validateName(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Please enter your full name';
+    }
+    return null;
+  }
+
+  String? _validateEmail(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Please enter your email address';
+    } else if (!value.contains('@')) {
+      return 'Please enter a valid email address';
+    }
+    return null;
+  }
+
+  String? _validatePassword(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Please enter your password';
+    } else if (value.length < 8) {
+      return 'Password must be at least 8 characters long';
+    }
+    return null;
   }
 
   void togglePasswordVisibility() {
@@ -576,13 +647,93 @@ class SignUpController extends GetxController {
   void setPostalCode(String value) {
     postalCode = value;
   }
+
   void setSelectedDate(DateTime date) {
     selectedDate = date;
-    dobController.text = '${date.day}/${date.month}/${date.year}';
+    dobController.text = DateFormat('dd/MM/yyyy').format(date);
     update();
   }
-  void signUp() {
-    print('Signing up...');
-    // Implement your signup logic here
+
+  Future<void> signUp(
+    String fullName,
+    String email,
+    String phone,
+    String selectedGender,
+      String address,
+      String selectedCity,
+      String selectedState,
+      String selectedDate
+  ) async {
+    final url = 'https://api.baii.me/api/createglobaluser';
+
+    try {
+      final response = await http.post(
+        Uri.parse(url),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+          'AuthToken' : '2ec26ad9-e039-445e-915e-zACl56sr2q'
+        },
+        body: jsonEncode(<String, dynamic>{
+          'name': fullName,
+          'email': email,
+          'phone_number': phone,
+          'gender': selectedGender,
+          'address': address,
+          'city': selectedCity,
+          'state': selectedState,
+          'date_of_birth': selectedDate,
+          //'date_of_birth': DateFormat('dd/MM/yyyy').format(selectedDate!),
+        }),
+      );
+      print(response.statusCode);
+      if (response.statusCode == 200) {
+        // Successful signup
+        print('User signed up successfully!');
+        print('API Response: ${response.body}');
+        // You can navigate to the chat screen or perform any post-signup actions here
+      } else {
+        // Error occurred during signup
+        print('Error signing up: ${response.body}');
+        // Handle error and show appropriate message to user
+      }
+    } catch (e) {
+      print('Error during signup: $e');
+      // Handle network errors or exceptions here
+    }
+  }
+
+  Future<Map<String, dynamic>?> fetchUserData(String email) async {
+    final url = 'https://api.baii.me/api/showglobaluser';
+
+    try {
+      final response = await http.post(
+        Uri.parse(url),
+        headers: <String, String>{
+          'Content-Type': 'application/json',
+          // Replace 'Bearer your_api_token_here' with your actual API token
+          'AuthToken' : '2ec26ad9-e039-445e-915e-zACl56sr2q'
+        },
+        body: jsonEncode(<String, String>{
+          'email': email,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        // Successful API call
+        print('User data fetched successfully!');
+        print('API Response: ${response.body}');
+        // Parse the response JSON and return the user data
+        return jsonDecode(response.body);
+      } else {
+        // Error occurred during API call
+        print('Error fetching user data: ${response.body}');
+        // Handle error and return null or show appropriate message to user
+        return null;
+      }
+    } catch (e) {
+      print('Error fetching user data: $e');
+      // Handle network errors or exceptions here
+      return null;
+    }
   }
 }

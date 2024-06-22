@@ -1,120 +1,67 @@
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import '../services/chat_service.dart';
-import '../utils/constants.dart';
+import 'package:get/get.dart';
+import 'package:flutter_chat_bubble/chat_bubble.dart';
+import 'package:flutter_chat_bubble/bubble_type.dart';
+import 'package:flutter_chat_bubble/clippers/chat_bubble_clipper_1.dart';
+import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
+import 'dart:io';
+import 'package:image_picker/image_picker.dart';
 
-class ChatScreen extends StatefulWidget {
-  @override
-  _ChatScreenState createState() => _ChatScreenState();
+
+
+
+class ChatController extends GetxController {
+  var messages = <Map<String, dynamic>>[].obs;
+  var showEmojiPicker = false.obs;
+
+  void sendMessage(String text) {
+    if (text.isNotEmpty) {
+      messages.add({'type': 'text', 'content': text});
+    }
+  }
+
+  Future<void> pickImage() async {
+    try {
+      final picker = ImagePicker();
+      final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+
+      if (pickedFile != null) {
+        messages.add({'type': 'image', 'content': pickedFile.path});
+      } else {
+        print("No image selected.");
+      }
+    } catch (e) {
+      print("Error picking image: $e");
+    }
+  }
+
+  void toggleEmojiPicker() {
+    showEmojiPicker.value = !showEmojiPicker.value;
+  }
 }
 
-class _ChatScreenState extends State<ChatScreen> {
-  final _controller = TextEditingController();
-  late User user;
+class ChatScreen extends StatelessWidget {
+  final Map<String, dynamic> userData;
 
-  @override
-  void initState() {
-    super.initState();
-    user = FirebaseAuth.instance.currentUser!;
-  }
+  ChatScreen({required this.userData});
 
   @override
   Widget build(BuildContext context) {
+    // Use userData to display user information or pass it down to child widgets
     return Scaffold(
       appBar: AppBar(
-        title: Text('Group Chat'),
+        title: Text('Chat Screen'),
       ),
-      body: Column(
-        children: [
-          Expanded(
-            child: StreamBuilder<QuerySnapshot>(
-              stream: ChatService.getMessages(),
-              builder: (context, snapshot) {
-                if (!snapshot.hasData) {
-                  return Center(child: CircularProgressIndicator());
-                }
-
-                final messages = snapshot.data!.docs;
-                List<Widget> messageWidgets = [];
-                for (var message in messages) {
-                  final messageText = message['text'];
-                  final messageSender = message['sender'];
-                  final currentUser = user.email;
-
-                  final messageWidget = _buildMessageBubble(
-                    messageText,
-                    messageSender,
-                    messageSender == currentUser,
-                  );
-                  messageWidgets.add(messageWidget);
-                }
-
-                return ListView(
-                  padding: EdgeInsets.symmetric(horizontal: 10, vertical: 20),
-                  children: messageWidgets,
-                );
-              },
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _controller,
-                    decoration: InputDecoration(
-                      hintText: 'Enter your message...',
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                ),
-                IconButton(
-                  icon: Icon(Icons.send),
-                  onPressed: () {
-                    ChatService.sendMessage(_controller.text, user.email!);
-                    _controller.clear();
-                  },
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildMessageBubble(String text, String sender, bool isMe) {
-    return Padding(
-      padding: const EdgeInsets.all(10.0),
-      child: Column(
-        crossAxisAlignment: isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
-        children: [
-          Text(sender, style: TextStyle(fontSize: 12, color: kTextColor)),
-          Material(
-            borderRadius: isMe
-                ? BorderRadius.only(
-              topLeft: Radius.circular(30),
-              bottomLeft: Radius.circular(30),
-              bottomRight: Radius.circular(30),
-            )
-                : BorderRadius.only(
-              topRight: Radius.circular(30),
-              bottomLeft: Radius.circular(30),
-              bottomRight: Radius.circular(30),
-            ),
-            elevation: 5,
-            color: isMe ? Colors.lightBlueAccent : Colors.white,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
-              child: Text(
-                text,
-                style: TextStyle(fontSize: 15, color: isMe ? Colors.white : Colors.black),
-              ),
-            ),
-          ),
-        ],
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text('User Data:'),
+            Text('Name: ${userData["name"]}'),
+            Text('Email: ${userData["email"]}'),
+            // Display more user information as needed
+          ],
+        ),
       ),
     );
   }
