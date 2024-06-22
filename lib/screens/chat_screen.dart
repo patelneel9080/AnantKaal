@@ -8,24 +8,26 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../utils/constants.dart';
 
-class Commnications extends StatefulWidget {
-  const Commnications({super.key});
+class Communications extends StatefulWidget {
+  final String name;
+
+  const Communications({Key? key, required this.name}) : super(key: key);
 
   @override
-  State<Commnications> createState() => _CommnicationsState();
+  State<Communications> createState() => _CommunicationsState();
 }
 
-class _CommnicationsState extends State<Commnications> {
-  TextEditingController chatController = Get.put(TextEditingController());
-  TextEditingController emailController = Get.put(TextEditingController());
-  TextEditingController phoneController = Get.put(TextEditingController());
-  TextEditingController addressController = Get.put(TextEditingController());
-  TextEditingController genderController = Get.put(TextEditingController());
-  TextEditingController cityController = Get.put(TextEditingController());
-  TextEditingController stateController = Get.put(TextEditingController()); // Add state controller
+class _CommunicationsState extends State<Communications> {
+  final TextEditingController chatController = TextEditingController();
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController phoneController = TextEditingController();
+  final TextEditingController addressController = TextEditingController();
+  final TextEditingController genderController = TextEditingController();
+  final TextEditingController cityController = TextEditingController();
+  final TextEditingController stateController = TextEditingController();
 
-  ShowgloabalChat showchat = Get.put(ShowgloabalChat());
-  GochatApiController showchats = Get.put(GochatApiController());
+  final ShowgloabalChat showchat = Get.put(ShowgloabalChat());
+  final GochatApiController showchats = Get.put(GochatApiController());
 
   @override
   void initState() {
@@ -38,12 +40,79 @@ class _CommnicationsState extends State<Commnications> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: PreferredSize(
+        preferredSize: Size.fromHeight(Get.height / 12),
+        child: AppBar(
+          automaticallyImplyLeading: false,
+          backgroundColor: AppColor.active_Textfild_color,
+          title: Column(
+            children: [
+             SizedBox( height: Get.height / 35,),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      SizedBox(height: Get.height / 80),
+                      Text(
+                        Commnications_text.Group_Chat,
+                        style: TextStyle(
+                          fontSize: Get.width / 13,
+                          color: AppColor.text_color,
+                          fontFamily: GoogleFonts.cherrySwash().fontFamily,
+                        ),
+                      ),
+                      Text(
+                        widget.name,
+                        style: TextStyle(
+                          fontSize: Get.width / 25,
+                          color: AppColor.text_color,
+                          fontFamily: GoogleFonts.exo().fontFamily,
+                        ),
+                      ),
+                    ],
+                  ),
+                  Image.asset(AppIcons.fluent),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+      body: Container(
+        height: Get.height,
+        width: Get.width,
+        decoration: BoxDecoration(
+          color: AppColor.text_color,
+        ),
+        child: Obx(
+              () {
+            if (showchat.isloading.value) {
+              return Center(
+                child: CircularProgressIndicator(),
+              );
+            } else {
+              return Column(
+                children: [
+                  // Text(
+                  //   showchat.showgloabal_data['data'][0]['user_details'][0]
+                  //   ['email'],
+                  // ),
+                ],
+              );
+            }
+          },
+        ),
+      ),
       floatingActionButton: Padding(
         padding: EdgeInsets.symmetric(
-          horizontal: Get.width / 30,
+          horizontal: Get.width / 35,
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             SizedBox(width: Get.width / 25),
             Container(
@@ -66,11 +135,11 @@ class _CommnicationsState extends State<Commnications> {
                     ),
                     prefixIcon: Padding(
                       padding: EdgeInsets.all(10),
-                      child: SvgPicture.asset(AppIcons.Vector),
+                      child: Image.asset(AppIcons.Vector),
                     ),
                     suffixIcon: Padding(
                       padding: EdgeInsets.all(10),
-                      child: SvgPicture.asset(AppIcons.photo),
+                      child: Image.asset(AppIcons.photo),
                     ),
                     focusedBorder: InputBorder.none,
                     enabledBorder: InputBorder.none,
@@ -87,7 +156,7 @@ class _CommnicationsState extends State<Commnications> {
                   address: addressController.text,
                   gender: genderController.text,
                   city: cityController.text,
-                  state: stateController.text, // Include the state field
+                  state: stateController.text,
                 );
               },
               child: Container(
@@ -101,87 +170,22 @@ class _CommnicationsState extends State<Commnications> {
                   ),
                 ),
                 child: Center(
-                  child: SvgPicture.asset(AppIcons.Sent),
+                  child: Image.asset(AppIcons.Sent),
                 ),
               ),
             ),
           ],
         ),
       ),
-      appBar: PreferredSize(
-        preferredSize: Size.fromHeight(Get.height / 12),
-        child: AppBar(
-          automaticallyImplyLeading: false,
-          backgroundColor: AppColor.active_Textfild_color,
-          title: SizedBox(
-            height: Get.height / 10,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    SizedBox(height: Get.height / 80),
-                    Text(
-                      Commnications_text.Group_Chat,
-                      style: TextStyle(
-                        fontSize: Get.width / 13,
-                        color: AppColor.text_color,
-                        fontFamily: GoogleFonts.cherrySwash().fontFamily,
-                      ),
-                    ),
-                    Text(
-                      "Name",
-                      style: TextStyle(
-                        fontSize: Get.width / 25,
-                        color: AppColor.text_color,
-                        fontFamily: GoogleFonts.exo().fontFamily,
-                      ),
-                    ),
-                  ],
-                ),
-                SvgPicture.asset(AppIcons.fluent),
-              ],
-            ),
-          ),
-        ),
-      ),
-      body: Container(
-        height: Get.height,
-        width: Get.width,
-        decoration: BoxDecoration(
-          color: AppColor.text_color,
-        ),
-        child: Obx(
-              () {
-            if (showchat.isloading.value) {
-              return Center(
-                child: CircularProgressIndicator(),
-              );
-            } else {
-              return Column(
-                children: [
-                  Text(
-                    showchat.showgloabal_data['data'][0]['user_details'][0]
-                    ['email'],
-                  ),
-                ],
-              );
-            }
-          },
-        ),
-      ),
     );
   }
 }
-
-// ignore_for_file: avoid_print, prefer_typing_uninitialized_variables, non_constant_identifier_names
 
 class ShowgloabalChat extends GetxController {
   var isloading = false.obs;
   var showgloabal_data;
 
-  Future showgloabal_Fuction() async {
+  Future<void> showgloabal_Fuction() async {
     try {
       isloading.value = true;
 
@@ -204,92 +208,19 @@ class ShowgloabalChat extends GetxController {
     }
   }
 }
-class SinupApiController extends GetxController {
-  var isLoding = false.obs;
-  var Sinup_data;
 
-  Future SinupApiController_faction({
-    required String FullName,
-    required String Phone,
-    required String Email,
-    required String Password,
-    required String Address,
-  }) async {
-    try {
-      if (kDebugMode) {
-        print('FirstName :- $FullName');
-        print('Phonenumber :- $Phone');
-        print('LastName :- $Email');
-        print('Email :- $Password');
-        print('Password :- $Address');
-      }
-
-      Map<String, dynamic> body = {
-        'name': FullName,
-        'phone_number': Phone,
-        'email': Email,
-        'address': Address,
-      };
-
-      if (kDebugMode) {
-        print(body);
-      }
-
-      final responce = await http.post(
-        Uri.parse(AppUrl.createglobaluser),
-        headers: {'AuthToken': '2ec26ad9-e039-445e-915e-zACl56sr2q'},
-        body: body,
-      );
-      if (responce.statusCode == 200 || responce.statusCode == 201) {
-        Sinup_data = jsonDecode(responce.body);
-        if (kDebugMode) {
-          print("Sinup Data :-$Sinup_data");
-        }
-      } else {
-        throw {
-          "Sinup Data Error this :- ${responce.statusCode} , ${responce.body}"
-        };
-      }
-    } catch (e) {
-      if (kDebugMode) {
-        print("Sinup Data Error = $e");
-      }
-    } finally {
-      isLoding.value = false;
-    }
-  }
-}
-class AppIcons {
-  static const google_icons = 'assets/icons/google_logo.svg';
-  static const profile_icons = 'assets/icons/profile.svg';
-  static const down_svg = 'assets/icons/down.svg';
-  static const fluent = 'assets/icons/fluent-emoji-flat_magic-wand.svg';
-  static const Sent = 'assets/icons/Sent.svg';
-  static const Vector = 'assets/icons/Vector.svg';
-  static const photo = 'assets/icons/photo.svg';
-  static const date = 'assets/icons/date.svg';
-}
-
-class AppUrl {
-  static const base_url = "https://api.baii.me/api/";
-
-  //showglobalchat
-
-  static const showglobalchat = "${base_url}showglobalchat";
-  static const createglobaluser = "${base_url}createglobaluser";
-}
 class GochatApiController extends GetxController {
   var isloding = false.obs;
   var data;
 
-  Future SinupApiController_faction({
+  Future<void> SinupApiController_faction({
     required String name,
     required String email,
     required String phoneNumber,
     required String address,
     required String gender,
     required String city,
-    required String state, // Add the state field
+    required String state,
   }) async {
     try {
       if (kDebugMode) {
@@ -299,7 +230,7 @@ class GochatApiController extends GetxController {
         print('Address: $address');
         print('Gender: $gender');
         print('City: $city');
-        print('State: $state'); // Print the state field
+        print('State: $state');
       }
 
       Map<String, dynamic> body = {
@@ -309,7 +240,7 @@ class GochatApiController extends GetxController {
         'address': address,
         'gender': gender,
         'city': city,
-        'state': state, // Include the state field
+        'state': state,
       };
 
       if (kDebugMode) {
@@ -322,7 +253,7 @@ class GochatApiController extends GetxController {
           'AuthToken': '2ec26ad9-e039-445e-915e-zACl56sr2q',
           'Content-Type': 'application/json',
         },
-        body: json.encode(body), // Ensure the body is encoded to JSON
+        body: json.encode(body),
       );
       if (response.statusCode == 200 || response.statusCode == 201) {
         data = jsonDecode(response.body);
@@ -342,4 +273,22 @@ class GochatApiController extends GetxController {
       isloding.value = false;
     }
   }
+}
+
+class AppIcons {
+  static const google_icons = 'assets/icons/google_logo.svg';
+  static const profile_icons = 'assets/icons/profile.svg';
+  static const down_svg = 'assets/icons/down.svg';
+  static const fluent = 'assets/flute.png';
+  static const Sent = 'assets/sent.png';
+  static const Vector = 'assets/Vector.png';
+  static const photo = 'assets/photo.png';
+  static const date = 'assets/icons/date.svg';
+}
+
+class AppUrl {
+  static const base_url = "https://api.baii.me/api/";
+
+  static const showglobalchat = "${base_url}showglobalchat";
+  static const createglobaluser = "${base_url}createglobaluser";
 }

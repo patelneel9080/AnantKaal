@@ -1,5 +1,6 @@
 import 'package:anantkaal/screens/chat_screen.dart';
 import 'package:anantkaal/screens/signup_screen.dart';
+import 'package:anantkaal/screens/splash_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -28,7 +29,7 @@ class MyApp extends StatelessWidget {
     return GetMaterialApp(
       title: 'Anantkaal Assignment',
       debugShowCheckedModeBanner: false,
-      home: SignUpScreen(),
+      home: SplashScreen()
     );
   }
 }

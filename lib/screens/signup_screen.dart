@@ -1,5 +1,6 @@
  import 'dart:convert';
-  import 'package:flutter/material.dart';
+  import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
   import 'package:google_fonts/google_fonts.dart';
   import 'package:intl/intl.dart';
   import 'package:http/http.dart' as http;
@@ -65,6 +66,7 @@
                       buildInputLabel('Password'),
                       SizedBox(height: 4),
                       buildCustomTextField(
+                        suffixIcon: Icon(CupertinoIcons.eye,color: kPrimaryColor,),
                         focusNode: controller.passwordFocusNode,
                         onChanged: controller.setPassword,
                         validator: controller._validatePassword,
@@ -149,7 +151,7 @@
 
 
                             var userData = await controller.fetchUserData(controller.email ?? '');
-                            Get.to(() => Commnications());
+                            Get.to(() => Communications(name: controller.fullName ?? '',));
                           }
                         },
                         child: Container(
@@ -198,6 +200,44 @@
     }
 
 
+    Widget buildPasswordTextField(SignUpController controller) {
+      return Container(
+        decoration: BoxDecoration(
+          color: controller.passwordFocusNode.hasFocus
+              ? kPrimaryColor.withOpacity(0.1)
+              : Colors.white,
+          border: Border.all(
+            color: controller.passwordFocusNode.hasFocus
+                ? kPrimaryColor
+                : Colors.grey,
+          ),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: TextField(
+          controller: controller.passwordController,
+          focusNode: controller.passwordFocusNode,
+          style: TextStyle(color: Colors.black, fontWeight: FontWeight.w400),
+          obscureText: controller.obscurePassword,
+          onChanged: controller.setPassword,
+          decoration: InputDecoration(
+            hintText: "Password",
+            contentPadding: EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+            border: InputBorder.none,
+            suffixIcon: IconButton(
+              icon: Icon(
+                controller.obscurePassword
+                    ? Icons.visibility
+                    : Icons.visibility_off,
+                color: kPrimaryColor,
+              ),
+              onPressed: () {
+                controller.togglePasswordVisibility();
+              },
+            ),
+          ),
+        ),
+      );
+    }
     Widget buildCustomTextField({
       required FocusNode focusNode,
       TextInputType? keyboardType,
@@ -553,7 +593,7 @@
     String? selectedCountry;
     String? selectedState;
     String? selectedCity;
-
+    bool obscurePassword = true;
     final TextEditingController fullNameController = TextEditingController();
     final TextEditingController emailController = TextEditingController();
     final TextEditingController passwordController = TextEditingController();
@@ -618,7 +658,10 @@
         update();
       }
     }
-
+    void togglePasswordVisibility() {
+      obscurePassword = !obscurePassword;
+      update();
+    }
     void setState(String? value) {
       if (selectedState != value) {
         selectedState = value;
@@ -676,7 +719,7 @@
         if (response.statusCode == 200) {
           print("Sign Up Successful: ${response.body}");
           // Handle successful signup, e.g., navigate to next screen
-          Get.to(() => Commnications());
+
         } else {
           print("Sign Up Failed: ${response.statusCode} ${response.body}");
           // Handle specific status codes
