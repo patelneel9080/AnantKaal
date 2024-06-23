@@ -1,294 +1,598 @@
 import 'dart:convert';
-import 'package:flutter/foundation.dart';
+import 'dart:io';
+
+import 'package:anantkaal/screens/splash_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:http/http.dart' as http;
+import 'package:image_picker/image_picker.dart';
 
-import '../utils/constants.dart';
+import '../utils/constant/const_color.dart'; // Adjust import path as needed
 
-class Communications extends StatefulWidget {
-  final String name;
-
-  const Communications({Key? key, required this.name}) : super(key: key);
-
+class ChatScreen extends StatefulWidget {
   @override
-  State<Communications> createState() => _CommunicationsState();
+  _ChatScreenState createState() => _ChatScreenState();
 }
 
-class _CommunicationsState extends State<Communications> {
-  final TextEditingController chatController = TextEditingController();
-  final TextEditingController emailController = TextEditingController();
-  final TextEditingController phoneController = TextEditingController();
-  final TextEditingController addressController = TextEditingController();
-  final TextEditingController genderController = TextEditingController();
-  final TextEditingController cityController = TextEditingController();
-  final TextEditingController stateController = TextEditingController();
+class _ChatScreenState extends State<ChatScreen> {
+  final TextEditingController _controller = TextEditingController();
+  List _messages = [];
+  String userId = "1"; // Example user ID
+  String authToken = "2ec26ad9-e039-445e-915e-zACl56sr2q";
+  ScrollController _scrollController = ScrollController();
+  bool _showEmojiPicker = false; // Track whether to show emoji picker
 
-  final ShowgloabalChat showchat = Get.put(ShowgloabalChat());
-  final GochatApiController showchats = Get.put(GochatApiController());
+  @override
+  FocusNode _focusNode = FocusNode();
 
   @override
   void initState() {
-    Future.microtask(() async {
-      await showchat.showgloabal_Fuction();
-    });
     super.initState();
+    _focusNode.addListener(_onFocusChange);
+    _getMessages();
+  }
+
+  @override
+  void dispose() {
+    _focusNode.removeListener(_onFocusChange);
+    _focusNode.dispose();
+    super.dispose();
+  }
+
+  void _onFocusChange() {
+    if (_focusNode.hasFocus) {
+      setState(() {
+        _showEmojiPicker = false; // Hide emoji picker when normal keyboard opens
+      });
+    }
+  }
+
+  void _handleEmojiSelected(String emoji) {
+    setState(() {
+      _showEmojiPicker = true; // Keep emoji picker open after selection
+    });
+    _controller.text += emoji;
+    _controller.selection = TextSelection.fromPosition(
+      TextPosition(offset: _controller.text.length),
+    ); // Move cursor to end of text
+  }
+
+  Future<void> _sendMessage(String message, {File? imageFile}) async {
+    final url = Uri.parse('https://api.baii.me/api/createglobalchat');
+    final headers = {
+      'Content-Type': 'application/json',
+      'AuthToken': '$authToken',
+    };
+
+    // Prepare the body of the request
+    Map<String, dynamic> body = {
+      'user_id': userId,
+      'message': message,
+    };
+
+    // If an image file is provided, encode it to base64 and add to the body
+    if (imageFile != null) {
+      List<int> imageBytes = await imageFile.readAsBytes();
+      String base64Image = base64Encode(imageBytes);
+      body['image'] = base64Image;
+    }
+
+    final encodedBody = jsonEncode(body);
+
+    print('Sending message: $encodedBody');
+
+    final response = await http.post(url, headers: headers, body: encodedBody);
+
+    print('Response status code: ${response.statusCode}');
+    print('Response body: ${response.body}');
+
+    if (response.statusCode == 200) {
+      _controller.clear();
+      _getMessages();
+    } else {
+      print('Failed to send message: ${response.body}');
+    }
+  }
+
+  Future<void> _getMessages() async {
+    final url = Uri.parse('https://api.baii.me/api/showglobalchat');
+    final headers = {
+      'AuthToken': '$authToken',
+    };
+
+    print('Fetching messages...');
+
+    final response = await http.get(url, headers: headers);
+
+    print('Response status code: ${response.statusCode}');
+    print('Response body: ${response.body}');
+
+    if (response.statusCode == 200) {
+      setState(() {
+        _messages = jsonDecode(response.body)['data'] ?? [];
+      });
+      _scrollToBottom();
+    } else {
+      print('Failed to fetch messages: ${response.body}');
+    }
+  }
+
+  void _scrollToBottom() {
+    if (_scrollController.hasClients) {
+      _scrollController.animateTo(
+        _scrollController.position.maxScrollExtent,
+        duration: Duration(milliseconds: 300),
+        curve: Curves.easeOut,
+      );
+    }
+  }
+
+  void toggleEmojiPicker() {
+    setState(() {
+      _showEmojiPicker = !_showEmojiPicker;
+    });
+  }
+
+  Future<void> _handleImagePick() async {
+    final ImagePicker _picker = ImagePicker();
+    final XFile? pickedFile =
+    await _picker.pickImage(source: ImageSource.gallery);
+
+    if (pickedFile != null) {
+      File imageFile = File(pickedFile.path);
+      _sendMessage('', imageFile: imageFile);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: PreferredSize(
-        preferredSize: Size.fromHeight(Get.height / 12),
+        preferredSize: Size.fromHeight(Get.height / 14),
         child: AppBar(
-          automaticallyImplyLeading: false,
           backgroundColor: AppColor.active_Textfild_color,
           title: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-             SizedBox( height: Get.height / 35,),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      SizedBox(height: Get.height / 80),
-                      Text(
-                        Commnications_text.Group_Chat,
-                        style: TextStyle(
-                          fontSize: Get.width / 13,
-                          color: AppColor.text_color,
-                          fontFamily: GoogleFonts.cherrySwash().fontFamily,
-                        ),
-                      ),
-                      Text(
-                        widget.name,
-                        style: TextStyle(
-                          fontSize: Get.width / 25,
-                          color: AppColor.text_color,
-                          fontFamily: GoogleFonts.exo().fontFamily,
-                        ),
-                      ),
-                    ],
-                  ),
-                  Image.asset(AppIcons.fluent),
-                ],
+              Text("Group Chat",
+                  style: GoogleFonts.cherrySwash(
+                      textStyle: TextStyle(
+                          fontSize: 28,
+                          color: Colors.white,
+                          fontWeight: FontWeight.w600))),
+              Text(
+                "", // Replace with your subtitle text or remove if not needed
+                style: TextStyle(
+                  fontSize: 14,
+                  color: AppColor.text_color,
+                  fontFamily: 'Exo', // Update with your font if needed
+                ),
               ),
             ],
           ),
-        ),
-      ),
-      body: Container(
-        height: Get.height,
-        width: Get.width,
-        decoration: BoxDecoration(
-          color: AppColor.text_color,
-        ),
-        child: Obx(
-              () {
-            if (showchat.isloading.value) {
-              return Center(
-                child: CircularProgressIndicator(),
-              );
-            } else {
-              return Column(
-                children: [
-                  // Text(
-                  //   showchat.showgloabal_data['data'][0]['user_details'][0]
-                  //   ['email'],
-                  // ),
-                ],
-              );
-            }
-          },
-        ),
-      ),
-      floatingActionButton: Padding(
-        padding: EdgeInsets.symmetric(
-          horizontal: Get.width / 35,
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            SizedBox(width: Get.width / 25),
-            Container(
-              width: Get.width / 1.4,
-              height: Get.height / 15,
-              decoration: BoxDecoration(
-                color: AppColor.Textfild_color,
-                borderRadius: BorderRadius.circular(Get.width / 50),
-                border: Border.all(
-                  color: AppColor.active_Textfild_color,
-                ),
+          actions: [
+
+            PopupMenuButton(
+              child: Padding(
+                padding: const EdgeInsets.only(right: 16.0),
+                child: Image.asset(AppIcons.flute),
               ),
-              child: Center(
-                child: TextField(
-                  controller: chatController,
-                  decoration: InputDecoration(
-                    hintText: Commnications_text.Enter_The_Message,
-                    hintStyle: TextStyle(
-                      color: AppColor.active_Textfild_color,
-                    ),
-                    prefixIcon: Padding(
-                      padding: EdgeInsets.all(10),
-                      child: Image.asset(AppIcons.Vector),
-                    ),
-                    suffixIcon: Padding(
-                      padding: EdgeInsets.all(10),
-                      child: Image.asset(AppIcons.photo),
-                    ),
-                    focusedBorder: InputBorder.none,
-                    enabledBorder: InputBorder.none,
-                  ),
-                ),
-              ),
-            ),
-            GestureDetector(
-              onTap: () {
-                showchats.SinupApiController_faction(
-                  name: chatController.text,
-                  email: emailController.text,
-                  phoneNumber: phoneController.text,
-                  address: addressController.text,
-                  gender: genderController.text,
-                  city: cityController.text,
-                  state: stateController.text,
-                );
+              itemBuilder: (context) {
+                return [
+                  PopupMenuItem(
+                    child: Text("Log out"),
+                    onTap: () {
+                      Get.to(() => SplashScreen());
+                    },
+                  )
+                ];
               },
-              child: Container(
-                width: Get.width / 7,
-                height: Get.height / 15,
-                decoration: BoxDecoration(
-                  color: AppColor.active_Textfild_color,
-                  borderRadius: BorderRadius.circular(Get.width / 50),
-                  border: Border.all(
-                    color: AppColor.active_Textfild_color,
-                  ),
-                ),
-                child: Center(
-                  child: Image.asset(AppIcons.Sent),
-                ),
-              ),
-            ),
+            ) // Replace with your image asset path
           ],
         ),
+      ),
+      body: Column(
+        children: <Widget>[
+          Expanded(
+            child: _messages.isEmpty
+                ? Center(
+              child: Text(
+                'No messages yet.',
+                style: TextStyle(fontSize: 18),
+              ),
+            )
+                : ListView.builder(
+              controller: _scrollController,
+              itemCount: _messages.length,
+              itemBuilder: (context, index) {
+                var chatDetails = _messages[index]['Chat_details'];
+                var userDetails = _messages[index]['user_details'];
+                if (userDetails.isNotEmpty) {
+                  var user = userDetails[0];
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      ListTile(
+                        title: Text(
+                          user['name'] ?? "",
+                          style: TextStyle(
+                              color: kPrimaryColor,
+                              fontWeight: FontWeight.w600),
+                        ),
+                      ),
+                      Container(
+                        margin: EdgeInsets.symmetric(
+                            vertical: 0.0, horizontal: 12.0),
+                        padding: EdgeInsets.all(18.0),
+                        decoration: BoxDecoration(
+                          color: Color(0xffDDEFF0),
+                          borderRadius: BorderRadius.circular(25.0),
+                        ),
+                        child: Text(
+                          chatDetails['message'] ?? "",
+                          style: TextStyle(fontSize: 14),
+                        ),
+                      ),
+                    ],
+                  );
+                } else {
+                  return SizedBox.shrink();
+                }
+              },
+            ),
+          ),
+          Column(
+            children: [
+              Divider(
+                color: kPrimaryColor,
+                height: 20,
+              ),
+              Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Container(
+                        padding: EdgeInsets.symmetric(horizontal: 10),
+                        decoration: BoxDecoration(
+                          color: AppColor.Textfild_color,
+                          borderRadius: BorderRadius.circular(Get.width / 50),
+                          border: Border.all(
+                            color: AppColor.active_Textfild_color,
+                          ),
+                        ),
+                        child: TextField(
+                          controller: _controller,
+                          focusNode:
+                          _focusNode, // Attach focus node to TextField
+                          decoration: InputDecoration(
+                            hintText: "Enter message",
+                            hintStyle: TextStyle(
+                              color: AppColor.active_Textfild_color,
+                            ),
+                            contentPadding: EdgeInsets.all(10),
+                            prefixIcon: Padding(
+                              padding: EdgeInsets.all(8),
+                              child: GestureDetector(
+                                onTap: toggleEmojiPicker,
+                                child: Image.asset(AppIcons.Vector),
+                              ),
+                            ),
+                            suffixIcon: Padding(
+                              padding: EdgeInsets.all(10),
+                              child: GestureDetector(
+                                onTap: _handleImagePick,
+                                child: Image.asset(AppIcons.photo),
+                              ),
+                            ),
+                            focusedBorder: InputBorder.none,
+                            enabledBorder: InputBorder.none,
+                          ),
+                        ),
+                      ),
+                    ),
+                    SizedBox(width: 10),
+                    // Adjust spacing between TextField and IconButton
+                    GestureDetector(
+                      onTap: () {
+                        if (_controller.text.isNotEmpty) {
+                          _sendMessage(_controller.text);
+                        }
+                      },
+                      child: Container(
+                        width: 50,
+                        height: 50,
+                        decoration: BoxDecoration(
+                          color: AppColor.active_Textfild_color,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: AppColor.active_Textfild_color,
+                          ),
+                        ),
+                        child: Center(
+                          child: Image.asset(
+                              AppIcons.Sent), // Replace with your image asset path
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              if (_showEmojiPicker)
+                Container(
+                  height: 250,
+                  child: EmojiPickerWidget(
+                    onEmojiSelected: _handleEmojiSelected,
+                  ),
+                ),
+            ],
+          ),
+        ],
       ),
     );
   }
 }
 
-class ShowgloabalChat extends GetxController {
-  var isloading = false.obs;
-  var showgloabal_data;
+class EmojiPickerWidget extends StatelessWidget {
+  final Function(String) onEmojiSelected;
 
-  Future<void> showgloabal_Fuction() async {
-    try {
-      isloading.value = true;
+  EmojiPickerWidget({Key? key, required this.onEmojiSelected})
+      : super(key: key);
 
-      final responce = await http.get(
-        Uri.parse(AppUrl.showglobalchat),
-        headers: {
-          'AuthToken': '2ec26ad9-e039-445e-915e-zACl56sr2q',
-        },
-      );
-      if (responce.statusCode == 200 || responce.statusCode == 201) {
-        showgloabal_data = jsonDecode(responce.body);
-        print(jsonDecode(responce.body));
-      } else {
-        throw {
-          "Error this showgloabal_data :- ${responce.body} , ${responce.statusCode}",
-        };
-      }
-    } finally {
-      isloading.value = false;
-    }
-  }
-}
+  final List<String> emojis = [
+  "😀",
+  "😃",
+  "😄",
+  "😁",
+  "😆",
+  "😅",
+  "🤣",
+  "😂",
+  "🙂",
+  "🙃",
+  "😉",
+    "😊",
+    "😇",
+    "🥰",
+    "😍",
+    "🤩",
+    "😘",
+    "😗",
+    "😚",
+    "😙",
+    "😋",
+    "😛",
+    "😜",
+    "🤪",
+    "😝",
+    "🤑",
+    "🤗",
+    "🤭",
+    "🤫",
+    "🤔",
+    "🤐",
+    "🤨",
+    "😐",
+    "😑",
+    "😶",
+    "😏",
+    "😒",
+    "🙄",
+    "😬",
+    "🤥",
+    "😌",
+    "😔",
+    "😪",
+    "🤤",
+    "😴",
+    "😷",
+    "🤒",
+    "🤕",
+    "🤢",
+    "🤮",
+    "🤧",
+    "🥵",
+    "🥶",
+    "🥴",
+    "😵",
+    "🤯",
+    "🤠",
+    "🥳",
+    "😎",
+    "🤓",
+    "🧐",
+    "😕",
+    "😟",
+    "🙁",
+    "☹️",
+    "😮",
+    "😯",
+    "😲",
+    "😳",
+    "🥺",
+    "😦",
+    "😧",
+    "😨",
+    "😰",
+    "😥",
+    "😢",
+    "😭",
+    "😱",
+    "😖",
+    "😣",
+    "😞",
+    "😓",
+    "😩",
+    "😫",
+    "🥱",
+    "😤",
+    "😡",
+    "😠",
+    "🤬",
+    "😈",
+    "👿",
+    "💀",
+    "☠️",
+    "💩",
+    "🤡",
+    "👹",
+    "👺",
+    "👻",
+    "👽",
+    "👾",
+    "🤖",
+    "😺",
+    "😸",
+    "😹",
+    "😻",
+    "😼",
+    "😽",
+    "🙀",
+    "😿",
+    "😾",
+    "🤲",
+    "👐",
+    "🙌",
+    "👏",
+    "🤝",
+    "👍",
+    "👎",
+    "👊",
+    "✊",
+    "🤛",
+    "🤜",
+    "🤞",
+    "✌️",
+    "🤟",
+    "🤘",
+    "🤙",
+    "👈",
+    "👉",
+    "👆",
+    "🖕",
+    "👇",
+    "☝️",
+    "👍🏻",
+    "👎🏻",
+    "👊🏻",
+    "✊🏻",
+    "🤛🏻",
+    "🤜🏻",
+    "🤞🏻",
+    "✌🏻",
+    "🤟🏻",
+    "🤘🏻",
+    "🤙🏻",
+    "👈🏻",
+    "👉🏻",
+    "👆🏻",
+    "🖕🏻",
+    "👇🏻",
+    "☝🏻",
+    "👍🏼",
+    "👎🏼",
+    "👊🏼",
+    "✊🏼",
+    "🤛🏼",
+    "🤜🏼",
+    "🤞🏼",
+    "✌🏼",
+    "🤟🏼",
+    "🤘🏼",
+    "🤙🏼",
+    "👈🏼",
+    "👉🏼",
+    "👆🏼",
+    "🖕🏼",
+    "👇🏼",
+    "☝🏼",
+    "👍🏽",
+    "👎🏽",
+    "👊🏽",
+    "✊🏽",
+    "🤛🏽",
+    "🤜🏽",
+    "🤞🏽",
+    "✌🏽",
+    "🤟🏽",
+    "🤘🏽",
+    "🤙🏽",
+    "👈🏽",
+    "👉🏽",
+    "👆🏽",
+    "🖕🏽",
+    "👇🏽",
+    "☝🏽",
+    "👍🏾",
+    "👎🏾",
+    "👊🏾",
+    "✊🏾",
+    "🤛🏾",
+    "🤜🏾",
+    "🤞🏾",
+    "✌🏾",
+    "🤟🏾",
+    "🤘🏾",
+    "🤙🏾",
+    "👈🏾",
+    "👉🏾",
+    "👆🏾",
+    "🖕🏾",
+    "👇🏾",
+    "☝🏾",
+    "👍🏿",
+    "👎🏿",
+    "👊🏿",
+    "✊🏿",
+    "🤛🏿",
+    "🤜🏿",
+    "🤞🏿",
+    "✌🏿",
+    "🤟🏿",
+    "🤘🏿",
+    "🤙🏿",
+    "👈🏿",
+    "👉🏿",
+    "👆🏿",
+    "🖕🏿",
+    "👇🏿",
+    "☝🏿",
+  ];
 
-class GochatApiController extends GetxController {
-  var isloding = false.obs;
-  var data;
-
-  Future<void> SinupApiController_faction({
-    required String name,
-    required String email,
-    required String phoneNumber,
-    required String address,
-    required String gender,
-    required String city,
-    required String state,
-  }) async {
-    try {
-      if (kDebugMode) {
-        print('Name: $name');
-        print('Email: $email');
-        print('Phone Number: $phoneNumber');
-        print('Address: $address');
-        print('Gender: $gender');
-        print('City: $city');
-        print('State: $state');
-      }
-
-      Map<String, dynamic> body = {
-        'name': name,
-        'email': email,
-        'phone_number': phoneNumber,
-        'address': address,
-        'gender': gender,
-        'city': city,
-        'state': state,
-      };
-
-      if (kDebugMode) {
-        print(body);
-      }
-
-      final response = await http.post(
-        Uri.parse(AppUrl.createglobaluser),
-        headers: {
-          'AuthToken': '2ec26ad9-e039-445e-915e-zACl56sr2q',
-          'Content-Type': 'application/json',
-        },
-        body: json.encode(body),
-      );
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        data = jsonDecode(response.body);
-        if (kDebugMode) {
-          print("Data: $data");
-        }
-      } else {
-        throw {
-          "Sign-up Data Error: ${response.statusCode} , ${response.body}"
-        };
-      }
-    } catch (e) {
-      if (kDebugMode) {
-        print("Sign-up Data Error: $e");
-      }
-    } finally {
-      isloding.value = false;
-    }
+  @override
+  Widget build(BuildContext context) {
+    return GridView.builder(
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 9, // Adjust the number of emojis per row
+        mainAxisSpacing: 8.0,
+        crossAxisSpacing: 8.0,
+        childAspectRatio: 1.0,
+      ),
+      itemCount: emojis.length,
+      itemBuilder: (context, index) {
+        return GestureDetector(
+          onTap: () {
+            onEmojiSelected(emojis[index]);
+          },
+          child: Center(
+            child: Text(
+              emojis[index],
+              style: TextStyle(fontSize: 24),
+            ),
+          ),
+        );
+      },
+    );
   }
 }
 
 class AppIcons {
-  static const google_icons = 'assets/icons/google_logo.svg';
-  static const profile_icons = 'assets/icons/profile.svg';
-  static const down_svg = 'assets/icons/down.svg';
-  static const fluent = 'assets/flute.png';
-  static const Sent = 'assets/sent.png';
   static const Vector = 'assets/Vector.png';
   static const photo = 'assets/photo.png';
-  static const date = 'assets/icons/date.svg';
+  static const Sent = 'assets/sent.png';
+  static const flute = 'assets/flute.png';
 }
 
-class AppUrl {
-  static const base_url = "https://api.baii.me/api/";
-
-  static const showglobalchat = "${base_url}showglobalchat";
-  static const createglobaluser = "${base_url}createglobaluser";
-}
