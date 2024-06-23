@@ -173,7 +173,6 @@ class _ChatScreenState extends State<ChatScreen> {
             ],
           ),
           actions: [
-
             PopupMenuButton(
               child: Padding(
                 padding: const EdgeInsets.only(right: 16.0),
