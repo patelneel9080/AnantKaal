@@ -30,7 +30,7 @@ class MyApp extends StatelessWidget {
     return GetMaterialApp(
       title: 'Anantkaal Assignment',
       debugShowCheckedModeBanner: false,
-      home: SplashScreen()
+      home: ChatScreen()
     );
   }
 }

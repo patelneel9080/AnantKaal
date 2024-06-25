@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get_state_manager/src/rx_flutter/rx_obx_widget.dart';
 import 'package:get/get_state_manager/src/simple/get_state.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
 import '../../controller/signup_controller.dart';
@@ -28,22 +29,22 @@ Widget buildPasswordTextField({
   required SignUpController controllerInstance,
 }) {
   return Obx(() => buildCustomTextField(
-    focusNode: focusNode,
-    controller: controller,
-    hintext: hintext,
-    obscureText: !controllerInstance.isPasswordVisible.value,
-    validator: validator,
-    showError: showError,
-    suffixIcon: IconButton(
-      icon: Icon(
-        controllerInstance.isPasswordVisible.value
-            ? Icons.visibility
-            : Icons.visibility_off,
-        color: kPrimaryColor,
-      ),
-      onPressed: controllerInstance.togglePasswordVisibility,
-    ),
-  ));
+        focusNode: focusNode,
+        controller: controller,
+        hintext: hintext,
+        obscureText: !controllerInstance.isPasswordVisible.value,
+        validator: validator,
+        showError: showError,
+        suffixIcon: IconButton(
+          icon: Icon(
+            controllerInstance.isPasswordVisible.value
+                ? Icons.visibility
+                : Icons.visibility_off,
+            color: kPrimaryColor,
+          ),
+          onPressed: controllerInstance.togglePasswordVisibility,
+        ),
+      ));
 }
 
 Widget buildCustomTextField({
@@ -57,23 +58,29 @@ Widget buildCustomTextField({
   String? Function(String?)? validator,
   required bool showError,
 }) {
-  String? errorText = validator?.call(controller.text);
+  String? errorText = showError ? validator?.call(controller.text) : null;
   Color borderColor = focusNode.hasFocus ? kPrimaryColor : Colors.grey;
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
       Container(
         decoration: BoxDecoration(
-          color: focusNode.hasFocus
-              ? kPrimaryColor.withOpacity(0.1)
-              : Colors.white,
+          color: focusNode.hasFocus ? Color(0xffDDEFF0) : Colors.white,
           border: Border.all(
             color: borderColor,
+            width: focusNode.hasFocus ? 2 : 1,
           ),
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              blurStyle: BlurStyle.outer,
+              color: focusNode.hasFocus ? Color(0xffBFE0E2) : Colors.white,
+              spreadRadius: 4,
+            ),
+          ],
         ),
         child: TextField(
-          style: TextStyle(color: Colors.black, fontWeight: FontWeight.w400),
+          style: GoogleFonts.exo(textStyle:  TextStyle(color: Colors.black, fontWeight: FontWeight.w400),),
           focusNode: focusNode,
           controller: controller,
           keyboardType: keyboardType,
@@ -82,8 +89,7 @@ Widget buildCustomTextField({
           decoration: InputDecoration(
             suffixIcon: suffixIcon,
             hintText: hintext,
-            contentPadding:
-            EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+            contentPadding: EdgeInsets.symmetric(vertical: 16, horizontal: 16),
             border: InputBorder.none,
           ),
         ),
@@ -100,45 +106,78 @@ Widget buildCustomTextField({
   );
 }
 
+
 Widget buildDateOfBirthField(BuildContext context, SignUpController controller,
     {required FocusNode focusNode}) {
   String formattedDate = controller.selectedDate == null
-      ? 'Select Date of Birth'
+      ? 'Select'
       : DateFormat('dd/MM/yyyy').format(controller.selectedDate!);
+  Color borderColor = focusNode.hasFocus ? kPrimaryColor : Colors.grey;
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      GestureDetector(
+        onTap: () {
+          _selectDate(context, controller);
+        },
+        child: AbsorbPointer(
+          child: Container(
+            decoration: BoxDecoration(
+                color: focusNode.hasFocus ? Color(0xffDDEFF0) : Colors.white,
+                border: Border.all(
+                    color: borderColor,
+                    width: focusNode.hasFocus ? 2 : 1
+                ),
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                      blurStyle: BlurStyle.outer,
+                      color: focusNode.hasFocus ? Color(0xffBFE0E2) : Colors.white,
+                      spreadRadius: 4
+                  )
+                ]
+            ),
+            padding: EdgeInsets.symmetric(vertical: 16, horizontal: 12),
+            child: TextField(
 
-  return GestureDetector(
-    onTap: () {
-      _selectDate(context, controller);
-    },
-    child: AbsorbPointer(
-      child: Container(
-        decoration: BoxDecoration(
-          color: focusNode.hasFocus
-              ? kPrimaryColor.withOpacity(0.1)
-              : Colors.white,
-          border: Border.all(
-            color: focusNode.hasFocus ? kPrimaryColor : Colors.grey,
+              focusNode: focusNode,
+              decoration: InputDecoration(
+                hintText: 'Select',
+                hintStyle: TextStyle(color: Colors.grey),
+                border: InputBorder.none,
+                suffix: GestureDetector(
+                  onTap: () {
+                    _selectDate(context, controller);
+                  },
+                  child: Container(
+                    height: 24,
+                    width: 24,
+                    decoration: BoxDecoration(
+                      image: DecorationImage(
+                          image: AssetImage("assets/calendar.png"),
+                          fit: BoxFit.cover
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              controller: TextEditingController(text: formattedDate),
+              readOnly: true,
+              style: GoogleFonts.exo(textStyle:  TextStyle(color: Colors.black, fontWeight: FontWeight.w400),),
+
+            ),
           ),
-          borderRadius: BorderRadius.circular(8),
-        ),
-        padding: EdgeInsets.symmetric(vertical: 16, horizontal: 12),
-        child: TextField(
-          focusNode: focusNode,
-          decoration: InputDecoration(
-            hintText: 'Select Date of Birth',
-            hintStyle: TextStyle(color: Colors.grey),
-            border: InputBorder.none,
-            suffixIcon: Icon(Icons.calendar_today),
-          ),
-          controller: TextEditingController(text: formattedDate),
-          readOnly: true,
-          onTap: () {
-            _selectDate(context, controller);
-          },
-          style: TextStyle(color: Colors.black), // Ensure text color is black
         ),
       ),
-    ),
+      if (controller.showValidationErrors && controller.dobError != null)
+        Padding(
+          padding: const EdgeInsets.only(left: 16, top: 4),
+          child: Text(
+            controller.dobError!,
+            style: TextStyle(color: Colors.red, fontSize: 12),
+          ),
+        ),
+    ],
   );
 }
 
@@ -175,62 +214,96 @@ Widget buildMultilineTextField({
         ),
         child: Container(
           decoration: BoxDecoration(
-            color: focusNode.hasFocus
-                ? kPrimaryColor.withOpacity(0.1)
-                : Colors.white,
-            border: Border.all(
-              color: borderColor,
-            ),
-            borderRadius: BorderRadius.circular(8),
+              color: focusNode.hasFocus
+                  ? Color(0xffDDEFF0)
+                  : Colors.white,
+              border: Border.all(
+                  color: borderColor,
+                  width: focusNode.hasFocus ? 2 : 1
+              ),
+              borderRadius: BorderRadius.circular(12),
+              boxShadow:  [
+                BoxShadow(
+                    blurStyle: BlurStyle.outer,
+                    color: focusNode.hasFocus ? Color(0xffBFE0E2) : Colors.white,spreadRadius: 4
+                )
+              ]
           ),
           child: TextField(
             focusNode: focusNode,
             controller: controller,
             maxLines: null,
-            style: TextStyle(color: Colors.black, fontWeight: FontWeight.w400),
+            style: GoogleFonts.exo(textStyle:  TextStyle(color: Colors.black, fontWeight: FontWeight.w400),),
+
+            // Ensure text color is black
             onChanged: onChanged,
             decoration: InputDecoration(
               hintText: "Address Line 1\nAddress Line 2\nAddress Line 3",
               contentPadding:
-              EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+                  EdgeInsets.symmetric(vertical: 16, horizontal: 16),
               border: InputBorder.none,
             ),
           ),
         ),
       ),
-      if (showError && errorText != null)Padding(
-        padding: const EdgeInsets.only(left: 16, top: 4),
-        child: Text(
-          errorText,
-          style: TextStyle(color: Colors.red, fontSize: 12),
+      if (showError && errorText != null)
+        Padding(
+          padding: const EdgeInsets.only(left: 16, top: 4),
+          child: Text(
+            errorText,
+            style: TextStyle(color: Colors.red, fontSize: 12),
+          ),
         ),
-      ),
     ],
   );
 }
 
 Widget buildIntlPhoneField(SignUpController controller) {
-  return Container(
-    decoration: BoxDecoration(
-      color: controller.phoneFocusNode.hasFocus
-          ? kPrimaryColor.withOpacity(0.1)
-          : Colors.white,
-      border: Border.all(
-        color: controller.phoneFocusNode.hasFocus ? kPrimaryColor : Colors.grey,
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Container(
+        decoration: BoxDecoration(
+          color: controller.phoneFocusNode.hasFocus
+              ? Color(0xffDDEFF0)
+              : Colors.white,
+          border: Border.all(
+            color: controller.phoneFocusNode.hasFocus
+                ? kPrimaryColor
+                : Colors.grey,
+              width: controller.phoneFocusNode.hasFocus ? 2 : 1
+          ),
+          borderRadius: BorderRadius.circular(12),
+            boxShadow:  [
+              BoxShadow(
+                  blurStyle: BlurStyle.outer,
+                  color: controller.phoneFocusNode.hasFocus ? Color(0xffBFE0E2) : Colors.white,spreadRadius: 4
+              )
+            ]
+        ),
+        child: IntlPhoneField(
+          style: GoogleFonts.exo(textStyle: TextStyle(color: Colors.black)),
+          // Ensure text color is black
+
+          focusNode: controller.phoneFocusNode,
+          decoration: InputDecoration(
+            border: InputBorder.none,
+            counterText: '',
+            contentPadding: EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+          ),
+          initialCountryCode: 'IN',
+          onChanged: (phone) => controller.setPhone(phone.completeNumber),
+        ),
       ),
-      borderRadius: BorderRadius.circular(8),
-    ),
-    child: IntlPhoneField(
-      style: TextStyle(color: Colors.black, fontWeight: FontWeight.w400),
-      focusNode: controller.phoneFocusNode,
-      decoration: InputDecoration(
-        border: InputBorder.none,
-        counterText: '',
-        contentPadding: EdgeInsets.symmetric(vertical: 16, horizontal: 16),
-      ),
-      initialCountryCode: 'IN',
-      onChanged: (phone) => controller.setPhone(phone.completeNumber),
-    ),
+      if (controller.phoneError != null)
+        Padding(
+          padding: const EdgeInsets.only(top: 8.0),
+          child: Text(
+            controller.phoneError!,
+            style: TextStyle(color: Colors.red, fontSize: 12),
+          ),
+        ),
+    ],
   );
 }
 
@@ -241,19 +314,40 @@ Widget buildCountryDropdown(SignUpController controller) {
       Container(
         decoration: BoxDecoration(
           color: controller.countryFocusNode.hasFocus
-              ? kPrimaryColor.withOpacity(0.1)
+              ? Color(0xffDDEFF0)
               : Colors.white,
           border: Border.all(
-            color:
-            controller.countryFocusNode.hasFocus ? kPrimaryColor : Colors.grey,
+            color: controller.countryFocusNode.hasFocus
+                ? kPrimaryColor
+                : Colors.grey,
+              width: controller.countryFocusNode.hasFocus ? 2 : 1
           ),
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(12),
+            boxShadow:  [
+              BoxShadow(
+                  blurStyle: BlurStyle.outer,
+                  color: controller.countryFocusNode.hasFocus ? Color(0xffBFE0E2) : Colors.white,spreadRadius: 4
+              )
+            ]
         ),
+
         child: DropdownButtonFormField<String>(
+
+          style: GoogleFonts.exo(textStyle:  TextStyle(color: Colors.black, fontWeight: FontWeight.w400),),
+
           decoration: InputDecoration(
             enabled: false,
+            suffix: Container(
+              height: 5,
+              width: 10,
+              decoration: BoxDecoration(
+                  image: DecorationImage(
+                      image: AssetImage("assets/arrow.png"),
+                      fit: BoxFit.cover)),
+            ),
             contentPadding: EdgeInsets.all(16),
-            border: InputBorder.none, hintStyle: TextStyle(color: Colors.black54),
+            border: InputBorder.none,
+            hintStyle: TextStyle(color: Colors.black54),
             hintText: 'Select Country',
           ),
           focusNode: controller.countryFocusNode,
@@ -263,7 +357,7 @@ Widget buildCountryDropdown(SignUpController controller) {
               value: country,
               child: Text(
                 country,
-                style: TextStyle(color: Colors.black, fontWeight: FontWeight.w400),
+                style: GoogleFonts.exo(textStyle: TextStyle(color: Colors.black)), // Ensure text color is blac,
               ),
             );
           }).toList(),
@@ -283,44 +377,53 @@ Widget buildCountryDropdown(SignUpController controller) {
   );
 }
 
-
-
 Widget buildStateDropdown(SignUpController controller) {
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
       Container(
         decoration: BoxDecoration(
-          color: controller.stateFocusNode.hasFocus
-              ? kPrimaryColor.withOpacity(0.1)
-              : Colors.white,
-          border: Border.all(
-            color: controller.stateFocusNode.hasFocus ? kPrimaryColor : Colors.grey,
-          ),
-          borderRadius: BorderRadius.circular(8),
+            color: controller.stateFocusNode.hasFocus
+                ? Color(0xffDDEFF0)
+                : Colors.white,
+            border: Border.all(
+                color: controller.stateFocusNode.hasFocus
+                    ? kPrimaryColor
+                    : Colors.grey,
+                width: controller.stateFocusNode.hasFocus ? 2 : 1
+            ),
+            borderRadius: BorderRadius.circular(12),
+            boxShadow:  [
+              BoxShadow(
+                  blurStyle: BlurStyle.outer,
+                  color: controller.stateFocusNode.hasFocus ? Color(0xffBFE0E2) : Colors.white,spreadRadius: 4
+              )
+            ]
         ),
+
         child: DropdownButtonFormField<String>(
+          style: GoogleFonts.exo(textStyle:  TextStyle(color: Colors.black, fontWeight: FontWeight.w400),),
           decoration: const InputDecoration(
-              contentPadding: EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+              contentPadding:
+                  EdgeInsets.symmetric(vertical: 16, horizontal: 16),
               border: InputBorder.none,
               hintText: 'Select State',
-              hintStyle: TextStyle(color: Colors.black54)
-          ),
+              hintStyle: TextStyle(color: Colors.black54)),
           focusNode: controller.stateFocusNode,
           value: controller.selectedState,
           items: controller.selectedCountry != null
               ? countriesData[controller.selectedCountry!]!
-              .keys
-              .map((String state) {
-            return DropdownMenuItem<String>(
-              value: state,
-              child: Text(
-                state,
-                style: TextStyle(
-                    color: Colors.black, fontWeight: FontWeight.w400),
-              ),
-            );
-          }).toList()
+                  .keys
+                  .map((String state) {
+                  return DropdownMenuItem<String>(
+                    value: state,
+                    child: Text(
+                      state,
+                      style: TextStyle(
+                          color: Colors.black, fontWeight: FontWeight.w400),
+                    ),
+                  );
+                }).toList()
               : [],
           onChanged: (value) {
             controller.setState(value);
@@ -329,7 +432,9 @@ Widget buildStateDropdown(SignUpController controller) {
           },
         ),
       ),
-      if (controller.showValidationErrors && controller.selectedCountry != null && controller.selectedState == null)
+      if (controller.showValidationErrors &&
+          controller.selectedCountry != null &&
+          controller.selectedState == null)
         Padding(
           padding: const EdgeInsets.only(left: 16, top: 8),
           child: Text(
@@ -347,15 +452,27 @@ Widget buildCityDropdown(SignUpController controller) {
     children: [
       Container(
         decoration: BoxDecoration(
-          color: controller.cityFocusNode.hasFocus
-              ? kPrimaryColor.withOpacity(0.1)
-              : Colors.white,
-          border: Border.all(
-            color: controller.cityFocusNode.hasFocus ? kPrimaryColor : Colors.grey,
-          ),
-          borderRadius: BorderRadius.circular(8),
+            color: controller.cityFocusNode.hasFocus
+                ? Color(0xffDDEFF0)
+                : Colors.white,
+            border: Border.all(
+                color: controller.cityFocusNode.hasFocus
+                    ? kPrimaryColor
+                    : Colors.grey,
+                width: controller.cityFocusNode.hasFocus ? 2 : 1
+            ),
+            borderRadius: BorderRadius.circular(12),
+            boxShadow:  [
+              BoxShadow(
+                  blurStyle: BlurStyle.outer,
+                  color: controller.cityFocusNode.hasFocus ? Color(0xffBFE0E2) : Colors.white,spreadRadius: 4
+              )
+            ]
         ),
+
         child: DropdownButtonFormField<String>(
+          style: GoogleFonts.exo(textStyle:  TextStyle(color: Colors.black, fontWeight: FontWeight.w400),),
+
           decoration: InputDecoration(
             hintText: 'Select City',
             hintStyle: TextStyle(color: Colors.black54),
@@ -364,32 +481,35 @@ Widget buildCityDropdown(SignUpController controller) {
           ),
           value: controller.selectedCity,
           focusNode: controller.cityFocusNode,
-          items:
-          controller.selectedCountry != null && controller.selectedState != null
+          items: controller.selectedCountry != null &&
+                  controller.selectedState != null
               ? countriesData[controller.selectedCountry!]![
-          controller.selectedState!]
-              ?.map((String city) {
-            return DropdownMenuItem<String>(
-              value: city,
-              child: Text(
-                city,
-                style: TextStyle(
-                    color: Colors.black, fontWeight: FontWeight.w400),
-              ),
-            );
-          }).toList() ??
-              []
+                          controller.selectedState!]
+                      ?.map((String city) {
+                    return DropdownMenuItem<String>(
+                      value: city,
+                      child: Text(
+                        city,
+                        style: TextStyle(
+                            color: Colors.black, fontWeight: FontWeight.w400),
+                      ),
+                    );
+                  }).toList() ??
+                  []
               : [],
           onChanged: (value) {
             controller.setCity(value);
           },
         ),
       ),
-      if (controller.showValidationErrors && controller.selectedCountry != null && controller.selectedState != null && controller.selectedCity == null)
+      if (controller.showValidationErrors &&
+          controller.selectedCountry != null &&
+          controller.selectedState != null &&
+          controller.selectedCity == null)
         Padding(
           padding: const EdgeInsets.only(left: 16, top: 8),
           child: Text(
-            'Please select a state',
+            'Please select a city',
             style: TextStyle(color: Colors.red, fontSize: 12),
           ),
         ),
@@ -403,7 +523,7 @@ Widget buildGenderRadioButtons({
   required bool showError,
 }) {
   String? errorText =
-  showError ? validator?.call(controller.selectedGender) : null;
+      showError ? validator?.call(controller.selectedGender) : null;
 
   return GetBuilder<SignUpController>(
     builder: (controller) => Column(
@@ -455,8 +575,20 @@ final Map<String, Map<String, List<String>>> countriesData = {
     'Maharashtra': ['Mumbai', 'Pune', 'Nagpur', 'Nashik', 'Aurangabad'],
     'Delhi': ['New Delhi', 'Noida', 'Gurgaon'],
     'Karnataka': ['Bangalore', 'Mysore', 'Hubli', 'Mangalore', 'Belgaum'],
-    'Tamil Nadu': ['Chennai', 'Coimbatore', 'Madurai', 'Tiruchirappalli', 'Salem'],
-    'Kerala': ['Thiruvananthapuram', 'Kochi', 'Kozhikode', 'Thrissur', 'Malappuram'],
+    'Tamil Nadu': [
+      'Chennai',
+      'Coimbatore',
+      'Madurai',
+      'Tiruchirappalli',
+      'Salem'
+    ],
+    'Kerala': [
+      'Thiruvananthapuram',
+      'Kochi',
+      'Kozhikode',
+      'Thrissur',
+      'Malappuram'
+    ],
     'West Bengal': ['Kolkata', 'Howrah', 'Durgapur', 'Asansol', 'Siliguri'],
     'Rajasthan': ['Jaipur', 'Jodhpur', 'Udaipur', 'Ajmer', 'Kota'],
     'Uttar Pradesh': ['Lucknow', 'Kanpur', 'Agra', 'Varanasi', 'Allahabad'],
@@ -475,25 +607,49 @@ final Map<String, Map<String, List<String>>> countriesData = {
       'Sacramento',
       'San Jose'
     ],
-    'New York': [
-      'New York City',
-      'Buffalo',
-      'Rochester',
-      'Albany',
-      'Syracuse'
-    ],
+    'New York': ['New York City', 'Buffalo', 'Rochester', 'Albany', 'Syracuse'],
     'Texas': ['Houston', 'Dallas', 'Austin', 'San Antonio', 'Fort Worth'],
     'Florida': ['Miami', 'Orlando', 'Tampa', 'Jacksonville', 'Fort Lauderdale'],
     'Illinois': ['Chicago', 'Springfield', 'Peoria', 'Rockford', 'Naperville'],
     'Ohio': ['Columbus', 'Cleveland', 'Cincinnati', 'Toledo', 'Akron'],
-    'Pennsylvania': ['Philadelphia', 'Pittsburgh', 'Allentown', 'Erie', 'Reading'],
-    'Michigan': ['Detroit', 'Grand Rapids', 'Warren', 'Sterling Heights', 'Lansing'],
+    'Pennsylvania': [
+      'Philadelphia',
+      'Pittsburgh',
+      'Allentown',
+      'Erie',
+      'Reading'
+    ],
+    'Michigan': [
+      'Detroit',
+      'Grand Rapids',
+      'Warren',
+      'Sterling Heights',
+      'Lansing'
+    ],
     'Georgia': ['Atlanta', 'Augusta', 'Columbus', 'Savannah', 'Athens'],
-    'North Carolina': ['Charlotte', 'Raleigh', 'Greensboro', 'Durham', 'Winston-Salem'],
+    'North Carolina': [
+      'Charlotte',
+      'Raleigh',
+      'Greensboro',
+      'Durham',
+      'Winston-Salem'
+    ],
     'Washington': ['Seattle', 'Spokane', 'Tacoma', 'Vancouver', 'Bellevue'],
     'Arizona': ['Phoenix', 'Tucson', 'Mesa', 'Chandler', 'Scottsdale'],
-    'Colorado': ['Denver', 'Colorado Springs', 'Aurora', 'Fort Collins', 'Lakewood'],
-    'Massachusetts': ['Boston', 'Worcester', 'Springfield', 'Lowell', 'Cambridge'],
+    'Colorado': [
+      'Denver',
+      'Colorado Springs',
+      'Aurora',
+      'Fort Collins',
+      'Lakewood'
+    ],
+    'Massachusetts': [
+      'Boston',
+      'Worcester',
+      'Springfield',
+      'Lowell',
+      'Cambridge'
+    ],
   },
   'Canada': {
     'Ontario': ['Toronto', 'Ottawa', 'Hamilton', 'London', 'Mississauga'],
@@ -505,16 +661,70 @@ final Map<String, Map<String, List<String>>> countriesData = {
       'Richmond',
       'Kelowna'
     ],
-    'Alberta': ['Calgary', 'Edmonton', 'Red Deer', 'Lethbridge', 'Medicine Hat'],
-    'Manitoba': ['Winnipeg', 'Brandon', 'Steinbach', 'Thompson', 'Portage la Prairie'],
-    'Saskatchewan': ['Saskatoon', 'Regina', 'Prince Albert', 'Moose Jaw', 'Swift Current'],
+    'Alberta': [
+      'Calgary',
+      'Edmonton',
+      'Red Deer',
+      'Lethbridge',
+      'Medicine Hat'
+    ],
+    'Manitoba': [
+      'Winnipeg',
+      'Brandon',
+      'Steinbach',
+      'Thompson',
+      'Portage la Prairie'
+    ],
+    'Saskatchewan': [
+      'Saskatoon',
+      'Regina',
+      'Prince Albert',
+      'Moose Jaw',
+      'Swift Current'
+    ],
     'Nova Scotia': ['Halifax', 'Dartmouth', 'Sydney', 'Truro', 'New Glasgow'],
-    'New Brunswick': ['Saint John', 'Moncton', 'Fredericton', 'Dieppe', 'Miramichi'],
-    'Newfoundland and Labrador': ['St. John\'s', 'Mount Pearl', 'Corner Brook', 'Conception Bay South', 'Grand Falls-Windsor'],
-    'Prince Edward Island': ['Charlottetown', 'Summerside', 'Stratford', 'Cornwall', 'Montague'],
-    'Northwest Territories': ['Yellowknife', 'Hay River', 'Inuvik', 'Fort Smith', 'Behchoko'],
-    'Nunavut': ['Iqaluit', 'Rankin Inlet', 'Arviat', 'Baker Lake', 'Cambridge Bay'],
-    'Yukon': ['Whitehorse', 'Dawson City', 'Watson Lake', 'Haines Junction', 'Carcross'],
+    'New Brunswick': [
+      'Saint John',
+      'Moncton',
+      'Fredericton',
+      'Dieppe',
+      'Miramichi'
+    ],
+    'Newfoundland and Labrador': [
+      'St. John\'s',
+      'Mount Pearl',
+      'Corner Brook',
+      'Conception Bay South',
+      'Grand Falls-Windsor'
+    ],
+    'Prince Edward Island': [
+      'Charlottetown',
+      'Summerside',
+      'Stratford',
+      'Cornwall',
+      'Montague'
+    ],
+    'Northwest Territories': [
+      'Yellowknife',
+      'Hay River',
+      'Inuvik',
+      'Fort Smith',
+      'Behchoko'
+    ],
+    'Nunavut': [
+      'Iqaluit',
+      'Rankin Inlet',
+      'Arviat',
+      'Baker Lake',
+      'Cambridge Bay'
+    ],
+    'Yukon': [
+      'Whitehorse',
+      'Dawson City',
+      'Watson Lake',
+      'Haines Junction',
+      'Carcross'
+    ],
   },
   'Australia': {
     'New South Wales': [
@@ -532,29 +742,67 @@ final Map<String, Map<String, List<String>>> countriesData = {
       'Townsville',
       'Cairns'
     ],
-    'Western Australia': ['Perth', 'Mandurah', 'Bunbury', 'Geraldton', 'Kalgoorlie'],
-    'South Australia': ['Adelaide', 'Mount Gambier', 'Whyalla', 'Murray Bridge', 'Port Lincoln'],
+    'Western Australia': [
+      'Perth',
+      'Mandurah',
+      'Bunbury',
+      'Geraldton',
+      'Kalgoorlie'
+    ],
+    'South Australia': [
+      'Adelaide',
+      'Mount Gambier',
+      'Whyalla',
+      'Murray Bridge',
+      'Port Lincoln'
+    ],
     'Tasmania': ['Hobart', 'Launceston', 'Devonport', 'Burnie', 'Kingston'],
     'Australian Capital Territory': ['Canberra'],
-    'Northern Territory': ['Darwin', 'Alice Springs', 'Palmerston', 'Katherine', 'Tennant Creek'],
+    'Northern Territory': [
+      'Darwin',
+      'Alice Springs',
+      'Palmerston',
+      'Katherine',
+      'Tennant Creek'
+    ],
   },
   'United Kingdom': {
     'England': ['London', 'Manchester', 'Birmingham', 'Liverpool', 'Bristol'],
     'Scotland': ['Glasgow', 'Edinburgh', 'Aberdeen', 'Dundee', 'Inverness'],
     'Wales': ['Cardiff', 'Swansea', 'Newport', 'Wrexham', 'Barry'],
-    'Northern Ireland': ['Belfast', 'Derry', 'Lisburn', 'Newtownabbey', 'Bangor'],
+    'Northern Ireland': [
+      'Belfast',
+      'Derry',
+      'Lisburn',
+      'Newtownabbey',
+      'Bangor'
+    ],
     'Channel Islands': ['Jersey', 'Guernsey', 'Alderney', 'Sark'],
     'Isle of Man': ['Douglas', 'Peel', 'Ramsey', 'Castletown'],
     'Gibraltar': ['Gibraltar'],
-    'British Overseas Territories': ['Bermuda', 'Cayman Islands', 'Falkland Islands', 'Gibraltar'],
+    'British Overseas Territories': [
+      'Bermuda',
+      'Cayman Islands',
+      'Falkland Islands',
+      'Gibraltar'
+    ],
     'British Crown Dependencies': ['Isle of Man', 'Jersey', 'Guernsey'],
-    'England and Wales': ['London', 'Cardiff', 'Birmingham', 'Liverpool', 'Bristol'],
-    'Scotland and Northern Ireland': ['Glasgow', 'Edinburgh', 'Belfast', 'Dundee', 'Inverness'],
+    'England and Wales': [
+      'London',
+      'Cardiff',
+      'Birmingham',
+      'Liverpool',
+      'Bristol'
+    ],
+    'Scotland and Northern Ireland': [
+      'Glasgow',
+      'Edinburgh',
+      'Belfast',
+      'Dundee',
+      'Inverness'
+    ],
     'Channel Islands': ['Jersey', 'Guernsey', 'Alderney', 'Sark'],
     'British Crown Dependencies': ['Isle of Man', 'Jersey', 'Guernsey'],
   },
   // Add more countries and their states/cities here
 };
-
-
-

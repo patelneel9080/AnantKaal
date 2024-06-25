@@ -42,7 +42,7 @@ class SignUpScreen extends StatelessWidget {
                     ),
                     SizedBox(height: 14),
                     buildInputLabel('Full Name'),
-                    SizedBox(height: 4),
+                    SizedBox(height: 6),
                     buildCustomTextField(
                       focusNode: controller.fullNameFocusNode,
                       onChanged: controller.setFullName,
@@ -118,6 +118,7 @@ class SignUpScreen extends StatelessWidget {
                       showError: controller.showValidationErrors,
                       controller: controller.postalCodeController,
                       hintext: 'Enter Postal Code',
+                      validator: controller.validatePostal, // Ensure validator is set
                     ),
                     SizedBox(height: 16),
                     buildInputLabel('My date of birth:'),
@@ -136,7 +137,13 @@ class SignUpScreen extends StatelessWidget {
                     GestureDetector(
                       onTap: () async {
                         controller.setShowValidationErrors(true);
-                        if (controller.formKey.currentState!.validate()) {
+
+                        // Validate phone number and DOB
+                        final phoneError = controller.validatePhone(controller.phone);
+                        final dobError = controller.validateDOB(controller.selectedDate);
+
+                        // Ensure the form is valid
+                        if (controller.formKey.currentState!.validate() && phoneError == null && dobError == null) {
                           await controller.signUp(
                             controller.fullName,
                             controller.email,
@@ -145,14 +152,11 @@ class SignUpScreen extends StatelessWidget {
                             controller.address,
                             controller.selectedCity ?? '',
                             controller.selectedState ?? '',
-                            DateFormat('dd/MM/yyyy')
-                                .format(controller.selectedDate!),
+                            DateFormat('dd/MM/yyyy').format(controller.selectedDate!),
                           );
 
-                          var userData = await controller
-                              .fetchUserData(controller.email ?? '');
-                          Get.to(() =>
-                              ChatScreen());
+                          var userData = await controller.fetchUserData(controller.email ?? '');
+                          Get.to(() => ChatScreen());
                         }
                       },
                       child: Container(
@@ -166,9 +170,7 @@ class SignUpScreen extends StatelessWidget {
                           child: Text(
                             Signup_String.Create_Account,
                             style: TextStyle(
-                              fontFamily: GoogleFonts
-                                  .openSans()
-                                  .fontFamily,
+                              fontFamily: GoogleFonts.openSans().fontFamily,
                               fontSize: Get.width / 18,
                               color: AppColor.text_color,
                               fontWeight: FontWeight.w900,
