@@ -1,13 +1,8 @@
-import 'package:anantkaal/screens/chat_screen.dart';
-import 'package:anantkaal/screens/login_screen.dart';
-import 'package:anantkaal/screens/signup_screen.dart';
 import 'package:anantkaal/screens/splash_screen.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get_navigation/src/root/get_material_app.dart';
-import 'package:google_sign_in/google_sign_in.dart';
+
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -30,7 +25,7 @@ class MyApp extends StatelessWidget {
     return GetMaterialApp(
       title: 'Anantkaal Assignment',
       debugShowCheckedModeBanner: false,
-      home: ChatScreen()
+      home: SplashScreen()
     );
   }
 }

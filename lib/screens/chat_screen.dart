@@ -12,6 +12,11 @@ import 'package:intl/intl.dart';
 import '../utils/constant/const_color.dart'; // Adjust import path as needed
 
 class ChatScreen extends StatefulWidget {
+  final String fullName;
+
+
+  ChatScreen({required this.fullName});
+
   @override
   _ChatScreenState createState() => _ChatScreenState();
 }
@@ -59,7 +64,6 @@ class _ChatScreenState extends State<ChatScreen> {
       TextPosition(offset: _controller.text.length),
     ); // Move cursor to end of text
   }
-
   Future<void> _sendMessage(String message, {File? imageFile}) async {
     final url = Uri.parse('https://api.baii.me/api/createglobalchat');
     final headers = {
@@ -138,14 +142,14 @@ class _ChatScreenState extends State<ChatScreen> {
 
   Future<void> _handleImagePick() async {
     final ImagePicker _picker = ImagePicker();
-    final XFile? pickedFile =
-    await _picker.pickImage(source: ImageSource.gallery);
+    final XFile? pickedFile = await _picker.pickImage(source: ImageSource.gallery);
 
     if (pickedFile != null) {
       File imageFile = File(pickedFile.path);
-      _sendMessage('', imageFile: imageFile);
+      await _sendMessage('', imageFile: imageFile); // Pass imageFile to _sendMessage
     }
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -166,7 +170,7 @@ class _ChatScreenState extends State<ChatScreen> {
                             color: Colors.white,
                             fontWeight: FontWeight.w600))),
                 Text(
-                  "", // Replace with your subtitle text or remove if not needed
+                  widget.fullName, // Replace with your subtitle text or remove if not needed
                   style: TextStyle(
                     fontSize: 14,
                     color: AppColor.text_color,

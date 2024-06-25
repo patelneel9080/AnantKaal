@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:get/get.dart';
+import 'package:intl_phone_field/intl_phone_field.dart';
 import '../controller/signup_controller.dart';
 import '../utils/constant/const_color.dart';
 import '../utils/constant/const_variables.dart';
@@ -134,16 +135,15 @@ class SignUpScreen extends StatelessWidget {
                         showError: controller.showValidationErrors),
                     const SizedBox(height: 16),
                     SizedBox(height: 24),
-                    GestureDetector(
-                      onTap: () async {
+                    ElevatedButton(
+                      onPressed:() async {
                         controller.setShowValidationErrors(true);
 
                         // Validate phone number and DOB
-                        final phoneError = controller.validatePhone(controller.phone);
                         final dobError = controller.validateDOB(controller.selectedDate);
 
                         // Ensure the form is valid
-                        if (controller.formKey.currentState!.validate() && phoneError == null && dobError == null) {
+                        if (controller.formKey.currentState!.validate() && dobError == null) {
                           await controller.signUp(
                             controller.fullName,
                             controller.email,
@@ -154,31 +154,31 @@ class SignUpScreen extends StatelessWidget {
                             controller.selectedState ?? '',
                             DateFormat('dd/MM/yyyy').format(controller.selectedDate!),
                           );
-
+                          Get.snackbar('Login', 'Login Successfull');
                           var userData = await controller.fetchUserData(controller.email ?? '');
-                          Get.to(() => ChatScreen());
+                          Get.to(() => ChatScreen(fullName: controller.fullName!));
+
                         }
                       },
-                      child: Container(
-                        width: Get.width,
-                        height: Get.height / 15,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(Get.width / 50),
-                          color: AppColor.active_Textfild_color,
-                        ),
-                        child: Center(
-                          child: Text(
-                            Signup_String.Create_Account,
-                            style: TextStyle(
-                              fontFamily: GoogleFonts.openSans().fontFamily,
-                              fontSize: Get.width / 18,
-                              color: AppColor.text_color,
-                              fontWeight: FontWeight.w900,
-                            ),
-                          ),
+                      style: ElevatedButton.styleFrom(
+                        foregroundColor: Colors.white, backgroundColor: Color(0xff438E96), // Text color
+                        padding: EdgeInsets.symmetric(
+                            horizontal: 50, vertical: 15),
+                        fixedSize: Size(Get.width, Get.height / 15,),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8.0),
                         ),
                       ),
-                    ),
+                      child:  Text(
+                        Signup_String.Create_Account,
+                        style: TextStyle(
+                          fontFamily: GoogleFonts.openSans().fontFamily,
+                          fontSize: Get.width / 18,
+                          color: AppColor.text_color,
+                          fontWeight: FontWeight.w900,
+                        ),
+                      ),
+                    ) ,
                   ],
                 ),
               ),

@@ -21,6 +21,7 @@ class SignUpController extends GetxController {
   String? phoneError;
   String? fullName;
   String? email;
+  int? userId;
   String? password;
   String? phone;
   String? address;
@@ -42,6 +43,21 @@ class SignUpController extends GetxController {
   final List<String> states = ['State 1', 'State 2', 'State 3'];
   final List<String> cities = ['City 1', 'City 2', 'City 3'];
   bool showValidationErrors = false;
+
+  void setSelectedCountry(String? country) {
+    selectedCountry = country;
+    update();
+  }
+
+  void setSelectedState(String? state) {
+    selectedState = state;
+    update();
+  }
+
+  void setSelectedCity(String? city) {
+    selectedCity = city;
+    update();
+  }
 
   void setFullName(String value) => fullName = value;
 
@@ -236,7 +252,7 @@ class SignUpController extends GetxController {
       "AuthToken": "2ec26ad9-e039-445e-915e-zACl56sr2q",
       "Content-Type": "application/json"
     };
-    final dobError = validateDOB(selectedDate);
+
     final body = json.encode({
       "name": fullName,
       "email": email,

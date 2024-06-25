@@ -80,7 +80,10 @@ Widget buildCustomTextField({
           ],
         ),
         child: TextField(
-          style: GoogleFonts.exo(textStyle:  TextStyle(color: Colors.black, fontWeight: FontWeight.w400),),
+          style: GoogleFonts.exo(
+            textStyle:
+                TextStyle(color: Colors.black, fontWeight: FontWeight.w400),
+          ),
           focusNode: focusNode,
           controller: controller,
           keyboardType: keyboardType,
@@ -106,7 +109,6 @@ Widget buildCustomTextField({
   );
 }
 
-
 Widget buildDateOfBirthField(BuildContext context, SignUpController controller,
     {required FocusNode focusNode}) {
   String formattedDate = controller.selectedDate == null
@@ -125,23 +127,20 @@ Widget buildDateOfBirthField(BuildContext context, SignUpController controller,
             decoration: BoxDecoration(
                 color: focusNode.hasFocus ? Color(0xffDDEFF0) : Colors.white,
                 border: Border.all(
-                    color: borderColor,
-                    width: focusNode.hasFocus ? 2 : 1
-                ),
+                    color: borderColor, width: focusNode.hasFocus ? 2 : 1),
                 borderRadius: BorderRadius.circular(12),
                 boxShadow: [
                   BoxShadow(
                       blurStyle: BlurStyle.outer,
-                      color: focusNode.hasFocus ? Color(0xffBFE0E2) : Colors.white,
-                      spreadRadius: 4
-                  )
-                ]
-            ),
-            padding: EdgeInsets.symmetric(vertical: 16, horizontal: 12),
+                      color:
+                          focusNode.hasFocus ? Color(0xffBFE0E2) : Colors.white,
+                      spreadRadius: 4)
+                ]),
+            padding: EdgeInsets.symmetric(vertical: 6, horizontal: 12),
             child: TextField(
-
               focusNode: focusNode,
               decoration: InputDecoration(
+                contentPadding: EdgeInsets.zero,
                 hintText: 'Select',
                 hintStyle: TextStyle(color: Colors.grey),
                 border: InputBorder.none,
@@ -155,16 +154,17 @@ Widget buildDateOfBirthField(BuildContext context, SignUpController controller,
                     decoration: BoxDecoration(
                       image: DecorationImage(
                           image: AssetImage("assets/calendar.png"),
-                          fit: BoxFit.cover
-                      ),
+                          fit: BoxFit.cover),
                     ),
                   ),
                 ),
               ),
               controller: TextEditingController(text: formattedDate),
               readOnly: true,
-              style: GoogleFonts.exo(textStyle:  TextStyle(color: Colors.black, fontWeight: FontWeight.w400),),
-
+              style: GoogleFonts.exo(
+                textStyle:
+                    TextStyle(color: Colors.black, fontWeight: FontWeight.w400),
+              ),
             ),
           ),
         ),
@@ -214,26 +214,25 @@ Widget buildMultilineTextField({
         ),
         child: Container(
           decoration: BoxDecoration(
-              color: focusNode.hasFocus
-                  ? Color(0xffDDEFF0)
-                  : Colors.white,
+              color: focusNode.hasFocus ? Color(0xffDDEFF0) : Colors.white,
               border: Border.all(
-                  color: borderColor,
-                  width: focusNode.hasFocus ? 2 : 1
-              ),
+                  color: borderColor, width: focusNode.hasFocus ? 2 : 1),
               borderRadius: BorderRadius.circular(12),
-              boxShadow:  [
+              boxShadow: [
                 BoxShadow(
                     blurStyle: BlurStyle.outer,
-                    color: focusNode.hasFocus ? Color(0xffBFE0E2) : Colors.white,spreadRadius: 4
-                )
-              ]
-          ),
+                    color:
+                        focusNode.hasFocus ? Color(0xffBFE0E2) : Colors.white,
+                    spreadRadius: 4)
+              ]),
           child: TextField(
             focusNode: focusNode,
             controller: controller,
             maxLines: null,
-            style: GoogleFonts.exo(textStyle:  TextStyle(color: Colors.black, fontWeight: FontWeight.w400),),
+            style: GoogleFonts.exo(
+              textStyle:
+                  TextStyle(color: Colors.black, fontWeight: FontWeight.w400),
+            ),
 
             // Ensure text color is black
             onChanged: onChanged,
@@ -262,89 +261,114 @@ Widget buildIntlPhoneField(SignUpController controller) {
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
-      Container(
-        decoration: BoxDecoration(
-          color: controller.phoneFocusNode.hasFocus
+      IntlPhoneField(
+        style: GoogleFonts.exo(textStyle: TextStyle(color: Colors.black)),
+        dropdownIconPosition: IconPosition.trailing,
+        initialCountryCode: "IN",
+        focusNode: controller.phoneFocusNode,
+        decoration: InputDecoration(
+          filled: true,
+          hintText: "Enter your Phone Number",
+          fillColor: controller.phoneFocusNode.hasFocus
               ? Color(0xffDDEFF0)
               : Colors.white,
-          border: Border.all(
-            color: controller.phoneFocusNode.hasFocus
-                ? kPrimaryColor
-                : Colors.grey,
-              width: controller.phoneFocusNode.hasFocus ? 2 : 1
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide(
+              width: controller.phoneFocusNode.hasFocus ? 2 : 1,
+              color: controller.phoneFocusNode.hasFocus
+                  ? kPrimaryColor
+                  : Colors.grey,
+            ),
           ),
-          borderRadius: BorderRadius.circular(12),
-            boxShadow:  [
-              BoxShadow(
-                  blurStyle: BlurStyle.outer,
-                  color: controller.phoneFocusNode.hasFocus ? Color(0xffBFE0E2) : Colors.white,spreadRadius: 4
-              )
-            ]
-        ),
-        child: IntlPhoneField(
-          style: GoogleFonts.exo(textStyle: TextStyle(color: Colors.black)),
-          // Ensure text color is black
-
-          focusNode: controller.phoneFocusNode,
-          decoration: InputDecoration(
-            border: InputBorder.none,
-            counterText: '',
-            contentPadding: EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide(
+              width: controller.phoneFocusNode.hasFocus ? 2 : 1,
+              color: controller.phoneFocusNode.hasFocus
+                  ? kPrimaryColor
+                  : Colors.grey,
+            ),
           ),
-          initialCountryCode: 'IN',
-          onChanged: (phone) => controller.setPhone(phone.completeNumber),
+          focusedErrorBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide(
+              width: controller.phoneFocusNode.hasFocus ? 2 : 1,
+              color: controller.phoneFocusNode.hasFocus
+                  ? kPrimaryColor
+                  : Colors.grey,
+            ),
+          ),
+          contentPadding: EdgeInsets.symmetric(vertical: 16),
+          border: OutlineInputBorder(
+            borderSide: BorderSide(
+              width: controller.phoneFocusNode.hasFocus ? 2 : 1,
+              color: controller.phoneFocusNode.hasFocus
+                  ? kPrimaryColor
+                  : Colors.grey,
+            ),
+          ),
+          counterText: ""
         ),
+        flagsButtonPadding: EdgeInsets.symmetric(horizontal: 12),
+        languageCode: "en",
+        onChanged: (phone) {
+          print(phone.completeNumber);
+        },
+        onCountryChanged: (country) {
+          print('Country changed to: ' + country.name);
+        },
       ),
-      if (controller.phoneError != null)
-        Padding(
-          padding: const EdgeInsets.only(top: 8.0),
-          child: Text(
-            controller.phoneError!,
-            style: TextStyle(color: Colors.red, fontSize: 12),
-          ),
-        ),
+
     ],
   );
 }
 
+// child: IntlPhoneField(
+//   style: GoogleFonts.exo(textStyle: TextStyle(color: Colors.black)),
+//   // Ensure text color is black
+//
+//   focusNode: controller.phoneFocusNode,
+//   decoration: InputDecoration(
+//     border: InputBorder.none,
+//     counterText: '',
+//     contentPadding: EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+//   ),
+//   initialCountryCode: 'IN',
+//   onChanged: (phone) => controller.setPhone(phone.completeNumber),
+// ),
 Widget buildCountryDropdown(SignUpController controller) {
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
       Container(
         decoration: BoxDecoration(
-          color: controller.countryFocusNode.hasFocus
-              ? Color(0xffDDEFF0)
-              : Colors.white,
-          border: Border.all(
             color: controller.countryFocusNode.hasFocus
-                ? kPrimaryColor
-                : Colors.grey,
-              width: controller.countryFocusNode.hasFocus ? 2 : 1
-          ),
-          borderRadius: BorderRadius.circular(12),
-            boxShadow:  [
+                ? Color(0xffDDEFF0)
+                : Colors.white,
+            border: Border.all(
+                color: controller.countryFocusNode.hasFocus
+                    ? kPrimaryColor
+                    : Colors.grey,
+                width: controller.countryFocusNode.hasFocus ? 2 : 1),
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: [
               BoxShadow(
                   blurStyle: BlurStyle.outer,
-                  color: controller.countryFocusNode.hasFocus ? Color(0xffBFE0E2) : Colors.white,spreadRadius: 4
-              )
-            ]
-        ),
-
+                  color: controller.countryFocusNode.hasFocus
+                      ? Color(0xffBFE0E2)
+                      : Colors.white,
+                  spreadRadius: 4)
+            ]),
         child: DropdownButtonFormField<String>(
-
-          style: GoogleFonts.exo(textStyle:  TextStyle(color: Colors.black, fontWeight: FontWeight.w400),),
-
+          iconSize: 0,
+          icon: Image.asset("assets/arrow.png"),
+          style: GoogleFonts.exo(
+            textStyle:
+                TextStyle(color: Colors.black, fontWeight: FontWeight.w400),
+          ),
           decoration: InputDecoration(
             enabled: false,
-            suffix: Container(
-              height: 5,
-              width: 10,
-              decoration: BoxDecoration(
-                  image: DecorationImage(
-                      image: AssetImage("assets/arrow.png"),
-                      fit: BoxFit.cover)),
-            ),
             contentPadding: EdgeInsets.all(16),
             border: InputBorder.none,
             hintStyle: TextStyle(color: Colors.black54),
@@ -357,7 +381,9 @@ Widget buildCountryDropdown(SignUpController controller) {
               value: country,
               child: Text(
                 country,
-                style: GoogleFonts.exo(textStyle: TextStyle(color: Colors.black)), // Ensure text color is blac,
+                style: GoogleFonts.exo(
+                    textStyle: TextStyle(
+                        color: Colors.black)), // Ensure text color is blac,
               ),
             );
           }).toList(),
@@ -390,19 +416,23 @@ Widget buildStateDropdown(SignUpController controller) {
                 color: controller.stateFocusNode.hasFocus
                     ? kPrimaryColor
                     : Colors.grey,
-                width: controller.stateFocusNode.hasFocus ? 2 : 1
-            ),
+                width: controller.stateFocusNode.hasFocus ? 2 : 1),
             borderRadius: BorderRadius.circular(12),
-            boxShadow:  [
+            boxShadow: [
               BoxShadow(
                   blurStyle: BlurStyle.outer,
-                  color: controller.stateFocusNode.hasFocus ? Color(0xffBFE0E2) : Colors.white,spreadRadius: 4
-              )
-            ]
-        ),
-
+                  color: controller.stateFocusNode.hasFocus
+                      ? Color(0xffBFE0E2)
+                      : Colors.white,
+                  spreadRadius: 4)
+            ]),
         child: DropdownButtonFormField<String>(
-          style: GoogleFonts.exo(textStyle:  TextStyle(color: Colors.black, fontWeight: FontWeight.w400),),
+          iconSize: 0,
+          icon: Image.asset("assets/arrow.png"),
+          style: GoogleFonts.exo(
+            textStyle:
+                TextStyle(color: Colors.black, fontWeight: FontWeight.w400),
+          ),
           decoration: const InputDecoration(
               contentPadding:
                   EdgeInsets.symmetric(vertical: 16, horizontal: 16),
@@ -459,20 +489,23 @@ Widget buildCityDropdown(SignUpController controller) {
                 color: controller.cityFocusNode.hasFocus
                     ? kPrimaryColor
                     : Colors.grey,
-                width: controller.cityFocusNode.hasFocus ? 2 : 1
-            ),
+                width: controller.cityFocusNode.hasFocus ? 2 : 1),
             borderRadius: BorderRadius.circular(12),
-            boxShadow:  [
+            boxShadow: [
               BoxShadow(
                   blurStyle: BlurStyle.outer,
-                  color: controller.cityFocusNode.hasFocus ? Color(0xffBFE0E2) : Colors.white,spreadRadius: 4
-              )
-            ]
-        ),
-
+                  color: controller.cityFocusNode.hasFocus
+                      ? Color(0xffBFE0E2)
+                      : Colors.white,
+                  spreadRadius: 4)
+            ]),
         child: DropdownButtonFormField<String>(
-          style: GoogleFonts.exo(textStyle:  TextStyle(color: Colors.black, fontWeight: FontWeight.w400),),
-
+          iconSize: 0,
+          icon: Image.asset("assets/arrow.png"),
+          style: GoogleFonts.exo(
+            textStyle:
+                TextStyle(color: Colors.black, fontWeight: FontWeight.w400),
+          ),
           decoration: InputDecoration(
             hintText: 'Select City',
             hintStyle: TextStyle(color: Colors.black54),
