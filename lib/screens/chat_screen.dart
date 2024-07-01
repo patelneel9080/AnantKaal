@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:io';
-
 import 'package:anantkaal/screens/splash_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -9,11 +8,10 @@ import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 
-import '../utils/constant/const_color.dart'; // Adjust import path as needed
+import '../utils/constant/const_color.dart';
 
 class ChatScreen extends StatefulWidget {
-  final String fullName;
-
+  String fullName;
 
   ChatScreen({required this.fullName});
 
@@ -24,7 +22,7 @@ class ChatScreen extends StatefulWidget {
 class _ChatScreenState extends State<ChatScreen> {
   final TextEditingController _controller = TextEditingController();
   List _messages = [];
-  String userId = "1"; // Example user ID
+  String userId = "119"; // Example user ID
   String authToken = "2ec26ad9-e039-445e-915e-zACl56sr2q";
   ScrollController _scrollController = ScrollController();
   bool _showEmojiPicker = false; // Track whether to show emoji picker
@@ -170,7 +168,7 @@ class _ChatScreenState extends State<ChatScreen> {
                             color: Colors.white,
                             fontWeight: FontWeight.w600))),
                 Text(
-                  widget.fullName, // Replace with your subtitle text or remove if not needed
+                widget.fullName,
                   style: TextStyle(
                     fontSize: 14,
                     color: AppColor.text_color,

@@ -29,22 +29,22 @@ Widget buildPasswordTextField({
   required SignUpController controllerInstance,
 }) {
   return Obx(() => buildCustomTextField(
-        focusNode: focusNode,
-        controller: controller,
-        hintext: hintext,
-        obscureText: !controllerInstance.isPasswordVisible.value,
-        validator: validator,
-        showError: showError,
-        suffixIcon: IconButton(
-          icon: Icon(
-            controllerInstance.isPasswordVisible.value
-                ? Icons.visibility
-                : Icons.visibility_off,
-            color: kPrimaryColor,
-          ),
-          onPressed: controllerInstance.togglePasswordVisibility,
-        ),
-      ));
+    focusNode: focusNode,
+    controller: controller,
+    hintext: hintext,
+    obscureText: !controllerInstance.isPasswordVisible.value,
+    validator: validator,
+    showError: showError,
+    suffixIcon: IconButton(
+      icon: Icon(
+        controllerInstance.isPasswordVisible.value
+            ? Icons.visibility
+            : Icons.visibility_off,
+        color: kPrimaryColor,
+      ),
+      onPressed: controllerInstance.togglePasswordVisibility,
+    ),
+  ));
 }
 
 Widget buildCustomTextField({
@@ -82,7 +82,7 @@ Widget buildCustomTextField({
         child: TextField(
           style: GoogleFonts.exo(
             textStyle:
-                TextStyle(color: Colors.black, fontWeight: FontWeight.w400),
+            TextStyle(color: Colors.black, fontWeight: FontWeight.w400),
           ),
           focusNode: focusNode,
           controller: controller,
@@ -133,7 +133,7 @@ Widget buildDateOfBirthField(BuildContext context, SignUpController controller,
                   BoxShadow(
                       blurStyle: BlurStyle.outer,
                       color:
-                          focusNode.hasFocus ? Color(0xffBFE0E2) : Colors.white,
+                      focusNode.hasFocus ? Color(0xffBFE0E2) : Colors.white,
                       spreadRadius: 4)
                 ]),
             padding: EdgeInsets.symmetric(vertical: 6, horizontal: 12),
@@ -163,7 +163,7 @@ Widget buildDateOfBirthField(BuildContext context, SignUpController controller,
               readOnly: true,
               style: GoogleFonts.exo(
                 textStyle:
-                    TextStyle(color: Colors.black, fontWeight: FontWeight.w400),
+                TextStyle(color: Colors.black, fontWeight: FontWeight.w400),
               ),
             ),
           ),
@@ -222,7 +222,7 @@ Widget buildMultilineTextField({
                 BoxShadow(
                     blurStyle: BlurStyle.outer,
                     color:
-                        focusNode.hasFocus ? Color(0xffBFE0E2) : Colors.white,
+                    focusNode.hasFocus ? Color(0xffBFE0E2) : Colors.white,
                     spreadRadius: 4)
               ]),
           child: TextField(
@@ -231,7 +231,7 @@ Widget buildMultilineTextField({
             maxLines: null,
             style: GoogleFonts.exo(
               textStyle:
-                  TextStyle(color: Colors.black, fontWeight: FontWeight.w400),
+              TextStyle(color: Colors.black, fontWeight: FontWeight.w400),
             ),
 
             // Ensure text color is black
@@ -239,7 +239,7 @@ Widget buildMultilineTextField({
             decoration: InputDecoration(
               hintText: "Address Line 1\nAddress Line 2\nAddress Line 3",
               contentPadding:
-                  EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+              EdgeInsets.symmetric(vertical: 16, horizontal: 16),
               border: InputBorder.none,
             ),
           ),
@@ -267,76 +267,60 @@ Widget buildIntlPhoneField(SignUpController controller) {
         initialCountryCode: "IN",
         focusNode: controller.phoneFocusNode,
         decoration: InputDecoration(
-          filled: true,
-          hintText: "Enter your Phone Number",
-          fillColor: controller.phoneFocusNode.hasFocus
-              ? Color(0xffDDEFF0)
-              : Colors.white,
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(
-              width: controller.phoneFocusNode.hasFocus ? 2 : 1,
-              color: controller.phoneFocusNode.hasFocus
-                  ? kPrimaryColor
-                  : Colors.grey,
+            filled: true,
+            hintText: "Enter your Phone Number",
+            fillColor: controller.phoneFocusNode.hasFocus
+                ? Color(0xffDDEFF0)
+                : Colors.white,
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(
+                width: controller.phoneFocusNode.hasFocus ? 2 : 1,
+                color: controller.phoneFocusNode.hasFocus
+                    ? kPrimaryColor
+                    : Colors.grey,
+              ),
             ),
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(
-              width: controller.phoneFocusNode.hasFocus ? 2 : 1,
-              color: controller.phoneFocusNode.hasFocus
-                  ? kPrimaryColor
-                  : Colors.grey,
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(
+                width: controller.phoneFocusNode.hasFocus ? 2 : 1,
+                color: controller.phoneFocusNode.hasFocus
+                    ? kPrimaryColor
+                    : Colors.grey,
+              ),
             ),
-          ),
-          focusedErrorBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(
-              width: controller.phoneFocusNode.hasFocus ? 2 : 1,
-              color: controller.phoneFocusNode.hasFocus
-                  ? kPrimaryColor
-                  : Colors.grey,
+            focusedErrorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(
+                width: controller.phoneFocusNode.hasFocus ? 2 : 1,
+                color: controller.phoneFocusNode.hasFocus
+                    ? kPrimaryColor
+                    : Colors.grey,
+              ),
             ),
-          ),
-          contentPadding: EdgeInsets.symmetric(vertical: 16),
-          border: OutlineInputBorder(
-            borderSide: BorderSide(
-              width: controller.phoneFocusNode.hasFocus ? 2 : 1,
-              color: controller.phoneFocusNode.hasFocus
-                  ? kPrimaryColor
-                  : Colors.grey,
+            contentPadding: EdgeInsets.symmetric(vertical: 16),
+            border: OutlineInputBorder(
+              borderSide: BorderSide(
+                width: controller.phoneFocusNode.hasFocus ? 2 : 1,
+                color: controller.phoneFocusNode.hasFocus
+                    ? kPrimaryColor
+                    : Colors.grey,
+              ),
             ),
-          ),
-          counterText: ""
+            counterText: ""
         ),
         flagsButtonPadding: EdgeInsets.symmetric(horizontal: 12),
         languageCode: "en",
-        onChanged: (phone) {
-          print(phone.completeNumber);
-        },
+        onChanged: (phone) => controller.setPhone(phone.completeNumber),
         onCountryChanged: (country) {
           print('Country changed to: ' + country.name);
         },
       ),
-
     ],
   );
 }
 
-// child: IntlPhoneField(
-//   style: GoogleFonts.exo(textStyle: TextStyle(color: Colors.black)),
-//   // Ensure text color is black
-//
-//   focusNode: controller.phoneFocusNode,
-//   decoration: InputDecoration(
-//     border: InputBorder.none,
-//     counterText: '',
-//     contentPadding: EdgeInsets.symmetric(vertical: 16, horizontal: 16),
-//   ),
-//   initialCountryCode: 'IN',
-//   onChanged: (phone) => controller.setPhone(phone.completeNumber),
-// ),
 Widget buildCountryDropdown(SignUpController controller) {
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
@@ -365,7 +349,7 @@ Widget buildCountryDropdown(SignUpController controller) {
           icon: Image.asset("assets/arrow.png"),
           style: GoogleFonts.exo(
             textStyle:
-                TextStyle(color: Colors.black, fontWeight: FontWeight.w400),
+            TextStyle(color: Colors.black, fontWeight: FontWeight.w400),
           ),
           decoration: InputDecoration(
             enabled: false,
@@ -431,11 +415,11 @@ Widget buildStateDropdown(SignUpController controller) {
           icon: Image.asset("assets/arrow.png"),
           style: GoogleFonts.exo(
             textStyle:
-                TextStyle(color: Colors.black, fontWeight: FontWeight.w400),
+            TextStyle(color: Colors.black, fontWeight: FontWeight.w400),
           ),
           decoration: const InputDecoration(
               contentPadding:
-                  EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+              EdgeInsets.symmetric(vertical: 16, horizontal: 16),
               border: InputBorder.none,
               hintText: 'Select State',
               hintStyle: TextStyle(color: Colors.black54)),
@@ -443,17 +427,17 @@ Widget buildStateDropdown(SignUpController controller) {
           value: controller.selectedState,
           items: controller.selectedCountry != null
               ? countriesData[controller.selectedCountry!]!
-                  .keys
-                  .map((String state) {
-                  return DropdownMenuItem<String>(
-                    value: state,
-                    child: Text(
-                      state,
-                      style: TextStyle(
-                          color: Colors.black, fontWeight: FontWeight.w400),
-                    ),
-                  );
-                }).toList()
+              .keys
+              .map((String state) {
+            return DropdownMenuItem<String>(
+              value: state,
+              child: Text(
+                state,
+                style: TextStyle(
+                    color: Colors.black, fontWeight: FontWeight.w400),
+              ),
+            );
+          }).toList()
               : [],
           onChanged: (value) {
             controller.setState(value);
@@ -504,7 +488,7 @@ Widget buildCityDropdown(SignUpController controller) {
           icon: Image.asset("assets/arrow.png"),
           style: GoogleFonts.exo(
             textStyle:
-                TextStyle(color: Colors.black, fontWeight: FontWeight.w400),
+            TextStyle(color: Colors.black, fontWeight: FontWeight.w400),
           ),
           decoration: InputDecoration(
             hintText: 'Select City',
@@ -515,20 +499,20 @@ Widget buildCityDropdown(SignUpController controller) {
           value: controller.selectedCity,
           focusNode: controller.cityFocusNode,
           items: controller.selectedCountry != null &&
-                  controller.selectedState != null
+              controller.selectedState != null
               ? countriesData[controller.selectedCountry!]![
-                          controller.selectedState!]
-                      ?.map((String city) {
-                    return DropdownMenuItem<String>(
-                      value: city,
-                      child: Text(
-                        city,
-                        style: TextStyle(
-                            color: Colors.black, fontWeight: FontWeight.w400),
-                      ),
-                    );
-                  }).toList() ??
-                  []
+          controller.selectedState!]
+              ?.map((String city) {
+            return DropdownMenuItem<String>(
+              value: city,
+              child: Text(
+                city,
+                style: TextStyle(
+                    color: Colors.black, fontWeight: FontWeight.w400),
+              ),
+            );
+          }).toList() ??
+              []
               : [],
           onChanged: (value) {
             controller.setCity(value);
@@ -556,7 +540,7 @@ Widget buildGenderRadioButtons({
   required bool showError,
 }) {
   String? errorText =
-      showError ? validator?.call(controller.selectedGender) : null;
+  showError ? validator?.call(controller.selectedGender) : null;
 
   return GetBuilder<SignUpController>(
     builder: (controller) => Column(

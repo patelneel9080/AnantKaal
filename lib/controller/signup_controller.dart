@@ -1,4 +1,7 @@
 import 'dart:convert';
+import 'dart:math';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -17,11 +20,9 @@ class SignUpController extends GetxController {
   final countryFocusNode = FocusNode();
   final stateFocusNode = FocusNode();
   final cityFocusNode = FocusNode();
-  String? dobError;
-  String? phoneError;
   String? fullName;
+  String? dobError;
   String? email;
-  int? userId;
   String? password;
   String? phone;
   String? address;
@@ -36,6 +37,8 @@ class SignUpController extends GetxController {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController phoneController = TextEditingController();
+  final TextEditingController dobController = TextEditingController();
+  final TextEditingController genderController = TextEditingController();
   final TextEditingController addressController = TextEditingController();
   final TextEditingController postalCodeController = TextEditingController();
   final selecteGender = ''.obs;
@@ -43,21 +46,6 @@ class SignUpController extends GetxController {
   final List<String> states = ['State 1', 'State 2', 'State 3'];
   final List<String> cities = ['City 1', 'City 2', 'City 3'];
   bool showValidationErrors = false;
-
-  void setSelectedCountry(String? country) {
-    selectedCountry = country;
-    update();
-  }
-
-  void setSelectedState(String? state) {
-    selectedState = state;
-    update();
-  }
-
-  void setSelectedCity(String? city) {
-    selectedCity = city;
-    update();
-  }
 
   void setFullName(String value) => fullName = value;
 
@@ -75,25 +63,13 @@ class SignUpController extends GetxController {
     selectedGender = value;
     update(); // Notify listeners that selectedGender has changed
   }
-  String? validateDOB(DateTime? date) {
-    if (date == null) {
-      dobError = 'Please select your date of birth';
-      update(); // Notify listeners that dobError has changed
-      return dobError;
-    }
-    dobError = null;
-    update(); // Notify listeners that dobError has changed
-    return null;
-  }
+
   String? validateName(String? value) {
     if (value == null || value.isEmpty) {
       return 'Please enter your full name';
-    } else if (!RegExp(r"^[a-zA-Z\s]+$").hasMatch(value)) {
-      return 'Please enter a valid name (no numbers or special characters)';
     }
     return null;
   }
-
 
   String? validateEmail(String? value) {
     if (value == null || value.isEmpty) {
@@ -175,20 +151,7 @@ class SignUpController extends GetxController {
     }
     return null;
   }
-  String? validatePhone(String? value) {
-    if (value == null || value.isEmpty) {
-      phoneError = 'Please enter your phone number';
-      update(); // Notify listeners that phoneError has changed
-      return phoneError;
-    } else if (!RegExp(r'^\+?\d{10,15}$').hasMatch(value)) {
-      phoneError = 'Please enter a valid phone number';
-      update(); // Notify listeners that phoneError has changed
-      return phoneError;
-    }
-    phoneError = null;
-    update(); // Notify listeners that phoneError has changed
-    return null;
-  }
+
   void togglePasswordVisibility() {
     isPasswordVisible.value = !isPasswordVisible.value;
   }
@@ -209,7 +172,6 @@ class SignUpController extends GetxController {
     }
     return null;
   }
-
 
   String? validateField(String? value) {
     if (value == null || value.isEmpty) {
@@ -235,6 +197,43 @@ class SignUpController extends GetxController {
   void updateCity(String? value) {
     selectedCity = value;
     update();
+  }
+  Future<void> signUp_firebase( String? fullName,
+      String? email,
+      String? phone,
+      String gender,
+      String? address,
+      String city,
+      String state,
+      String dateOfBirth,) async {
+    try {
+      UserCredential userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
+        email: emailController.text.trim(),
+        password: passwordController.text.trim(),
+      );
+      print("done");
+      await FirebaseFirestore.instance.collection('users').doc(userCredential.user!.uid).set({
+        "name": fullName,
+        "email": email,
+        "phone_number": phone,
+        "gender": gender,
+        "address": address,
+        "city": city,
+        "state": state,
+        "date_of_birth": dateOfBirth,
+      });
+    } on FirebaseAuthException catch (e) {
+      String message = '';
+      if (e.code == 'weak-password') {
+        message = 'The password provided is too weak.';
+      } else if (e.code == 'email-already-in-use') {
+        message = 'The account already exists for that email.';
+      } else {
+        message = 'An unknown error occurred.';
+      }
+    } catch (e) {
+      print("an error occured");
+     }
   }
 
   Future<void> signUp(
@@ -263,16 +262,13 @@ class SignUpController extends GetxController {
       "state": state,
       "date_of_birth": dateOfBirth,
     });
-    if (validatePhone(phone) != null) {
-      return; // Stop if the phone number is invalid
-    }
+
     try {
       final response = await http.post(url, headers: headers, body: body);
 
       if (response.statusCode == 200) {
         Get.snackbar('Login', 'Login Successfull');
         print("Sign Up Successful: ${response.body}");
-        // Handle successful signup, e.g., navigate to next screen
       } else {
         print("Sign Up Failed: ${response.statusCode} ${response.body}");
         // Handle specific status codes
@@ -297,6 +293,7 @@ class SignUpController extends GetxController {
         colorText: Colors.white,
       );
     }
+
   }
 
   Future<Map<String, dynamic>?> fetchUserData(String email) async {
